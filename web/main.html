@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css" />
+    <title>IIneKOKO</title>
+
+    <style type="text/css">
+        #id_main_contaier {
+            padding-top: 6em;
+            padding-bottom: 1em;
+        }
+
+        .contaier {
+            margin-top: 1em;
+        }
+
+        canvas {
+            padding: 6px;
+            border: 1px solid #CFCFCF;
+        }
+
+        #preview_canvas_wrapper {
+            width: 256px;
+            margin: 1em auto;
+        }
+
+        #canvas_wrapper {
+            width: 512px;
+            margin: 1em auto;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- -->
+    <div class="ui modal">
+
+    </div>
+
+    <div class="one column computer tablet only row">
+        <div class="column">
+            <div class="ui inverted top fixed menu">
+                <div id="id_event_header" class="header item">
+                    IIneKOKO
+                </div>
+                <a id="id_menu_file" data-target-view="#id_view_file" class="item cc_menu"
+                    href="javascript:iine_view_change('#id_menu_file');">
+                    <i class="file icon"></i>&nbsp;新規作成</a>
+                <a id="id_menu_edit" data-target-view="#id_view_edit" class="item cc_menu"
+                    href="javascript:iine_view_change('#id_menu_edit');">
+                    <i class="edit icon"></i>&nbsp;編集</a>
+                <a id="id_menu_list" data-target-view="#id_view_list" class="item cc_menu"
+                    href="javascript:iine_view_change('#id_menu_list');">
+                    <i class="list icon"></i>&nbsp;一覧</a>
+                <div id="id_menu_mode_space" class="right menu">
+                    <a id="id_menu_conf" class="item cc_menu" href="javascript:void(0);">
+                        <i class="cog icon"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="id_main_contaier" class="ui container">
+        <div id="id_view_file" class="ccheck_view" style="display: xnone;">
+            <h1>新規作成</h1>
+
+            <div id="preview_canvas_wrapper">
+                <canvas id="id_preview_canvas" width="256" height="256"></canvas>
+            </div>
+
+            <div class="ui header">項目の説明<small>（空白の項目は自動的に除外されます）</small></div>
+            <div class="ui form">
+                <div class="field">
+                    <label>タイトル</label>
+                    <input type="text" />
+                </div>
+                <div class="field">
+                    <label><i class="red bookmark icon"></i></label>
+                    <input type="text" />
+                </div>
+                <div class="field">
+                    <label><i class="green bookmark icon"></i></label>
+                    <input type="text" />
+                </div>
+                <div class="field">
+                    <label><i class="blue bookmark icon"></i></label>
+                    <input type="text" />
+                </div>
+
+                <div class="inline fields">
+                    <label for="fruit">選択領域の最大サイズ</label>
+                    <div class="field">
+                        <div class="ui radio checkbox">
+                            <input type="radio" name="fruit" tabindex="0" class="hidden">
+                            <label>25%</label>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="ui radio checkbox">
+                            <input type="radio" name="fruit" tabindex="0" class="hidden">
+                            <label>50%</label>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="ui radio checkbox">
+                            <input type="radio" name="fruit" tabindex="0" class="hidden">
+                            <label>75%</label>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="ui radio checkbox">
+                            <input type="radio" name="fruit" checked="" tabindex="0" class="hidden">
+                            <label>100%</label>
+                        </div>
+                    </div>
+                </div>
+
+                <input id="id_file_uploader" class="ui button" type="file" name="file[]" />
+                <div id="id_file_droparea" class="ui placeholder segment">
+                    <div class="ui icon header">
+                        <i class="file outline icon"></i>
+                        画像ファイルをここにドロップ
+                    </div>
+                </div>
+
+                <div class="ui container">
+                    <div class="ui primary submit right labeled icon button">作成
+                        <i class="checkmark icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="id_view_edit" class="ccheck_view" style="display: none;">
+            <div class="ui large menu">
+                <a class="item active" onclick="javascript:set_color(0, '#FF0000');"><i
+                        class="red pencil alternate icon"></i></a>
+                <a class="item" onclick="javascript:set_color(1, '#00FF00');"><i
+                        class="green pencil alternate icon"></i></a>
+                <a class="item" onclick="javascript:set_color(2, '#0000FF');"><i
+                        class="blue pencil alternate icon"></i></a>
+                <a class="item" onclick="javascript:canvas_reset();"><i class="eraser icon"></i></a>
+                <div class="right menu">
+                    <a class="item"><i class="trash icon"></i></a>
+                </div>
+            </div>
+
+            <div class="ui center aligned container">
+                <div class="ui celled horizontal list">
+                    <div class="item"><i class="red large bookmark middle aligned icon"></i>...</div>
+                    <div class="item"><i class="green large bookmark middle aligned icon"></i>...</div>
+                    <div class="item"><i class="blue large bookmark middle aligned icon"></i>...</div>
+                </div>
+            </div>
+
+            <div id="canvas_wrapper">
+                <canvas id="id_iine_canvas" width="512" height="512"></canvas>
+            </div>
+        </div>
+
+        <div id="id_view_list" class="ccheck_view" style="display: none;">
+            <table class="ui striped selectable unstackable table">
+                <thead>
+                    <tr>
+                        <th>タイトル</th>
+                        <th>作成日</th>
+                        <th><i class="info circle icon"></i></th>
+                    </tr>
+                </thead>
+                <tbody id="id_tbl_favo_0">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+
+    <!-- jQuery http://jquery.com/ -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <!-- Semantic UI https://semantic-ui.com/ -->
+    <script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/1.5.0/fabric.min.js"></script>
+    <script type="text/javascript">
+
+        //
+        var o_canvas = null;
+        var o_preview = null;
+        var o_image_target = null;
+        var n_shape_active = 0;
+        var list_shape = [null, null, null];
+        var CANVAS_W = 512.0;
+        var CANVAS_H = 512.0;
+        var PREVIEW_W = 256.0;
+        var PREVIEW_H = 256.0;
+
+        var b_drag = false;
+        var axis_x = 0;
+        var axis_y = 0;
+
+        var color_curr = "#FF0000";
+
+        function set_color(n, c) { n_shape_active = n; color_curr = c; console.log(n, c); }
+
+        function canvas_reset() {
+            for (var n = 0; n < list_shape.length; n++) {
+                if (list_shape[n] != null) { o_canvas.remove(list_shape[n]); list_shape[n] = null; }
+            }
+        }
+
+        function evt_droparea_dragover(o_evt) {
+            o_evt.stopPropagation();
+            o_evt.preventDefault();
+            o_evt.originalEvent.dataTransfer.dropEffect = "copy";
+        }
+
+        function evt_droparea_drop(o_evt) {
+            o_evt.stopPropagation();
+            o_evt.preventDefault();
+
+            console.log(o_evt.originalEvent.dataTransfer.files);
+            if (o_evt.originalEvent.dataTransfer.files.length == 1) {
+                file_load(o_evt.originalEvent.dataTransfer.files[0]);
+            }
+        }
+
+        function evt_file_uploader(o_evt) {
+            if (o_evt.target.files.length == 1) {
+                file_load(o_evt.target.files[0]);
+            }
+        }
+
+        function file_load(img_filename) {
+            var reader = new FileReader();
+
+            canvas_reset();
+            if (o_image_target != null) {
+                o_preview.remove(o_image_target);
+                o_image_target = null;
+            }
+
+            reader.onload = function (f) {
+                var o_image = new Image();
+                o_image.src = f.target.result;
+                o_image.onload = function () {
+                    o_image_target = new fabric.Image(o_image);
+                    //console.log(o_image_target);
+
+                    var f_scale_w = PREVIEW_W / o_image_target.width;
+                    var f_scale_h = PREVIEW_H / o_image_target.height;
+                    var f_scale = (f_scale_w > f_scale_h) ? f_scale_h : f_scale_w;
+
+                    o_image_target.selectable = false;
+                    o_image_target.scale(f_scale);
+
+                    o_preview.add(o_image_target);
+                }
+            }
+            reader.readAsDataURL(img_filename);
+        }
+
+        function evt_mouse_down(o_evt) {
+
+            if (list_shape[n_shape_active] != null) {
+                o_canvas.remove(list_shape[n_shape_active]);
+                list_shape[n_shape_active] = null;
+            }
+
+            var o_shape = new fabric.Circle(
+                { radius: 1, fill: color_curr, opacity: 0.5, left: o_evt.e.offsetX - 1, top: o_evt.e.offsetY - 1 }
+            );
+
+            o_shape.hasControls = false;
+            o_shape.hasBorders = false;
+
+            o_canvas.add(o_shape).setActiveObject(o_shape);
+
+            axis_x = o_evt.e.offsetX;
+            axis_y = o_evt.e.offsetY;
+
+            list_shape[n_shape_active] = o_shape;
+
+            b_drag = true;
+
+            console.log("mdown");
+
+        }
+        function evt_mouse_up(o_evt) {
+            console.log("mup");
+            b_drag = false;
+        }
+        function evt_mouse_move(o_evt) {
+            console.log("mmove");
+
+            if (b_drag == true) {
+                o_shape = list_shape[n_shape_active];
+                o_shape.radius = Math.abs(axis_x - o_evt.e.offsetX);
+
+                o_canvas.renderAll();
+            }
+        }
+
+        function iine_view_change(id) {
+
+            $(".ccheck_view").hide();
+            $($(id).data("target-view")).show()
+        }
+        function iine_edit() { }
+        function iine_list() { }
+
+        function evt_upload() { }
+
+        //
+        function main() {
+            o_canvas = new fabric.Canvas("id_iine_canvas", { selection: false });
+            o_canvas.setBackgroundColor("#EFEFEF");
+            o_canvas.isDrawingMode = false;
+            o_canvas.renderAll();
+
+            o_preview = new fabric.Canvas("id_preview_canvas", { selection: false });
+            o_preview.setBackgroundColor("#EFEFEF");
+            o_preview.isDrawingMode = false;
+            o_preview.renderAll();
+
+            $('.ui.radio.checkbox').checkbox();
+
+            $("#id_file_droparea").on("dragover", evt_droparea_dragover);
+            $("#id_file_droparea").on("drop", evt_droparea_drop);
+
+            $("#id_file_uploader").on("change", evt_file_uploader);
+
+            o_canvas.on(
+                {
+                    "mouse:down": evt_mouse_down,
+                    "mouse:up": evt_mouse_up,
+                    "mouse:move": evt_mouse_move
+                }
+            );
+        }
+
+        window.onload = function () {
+            main();
+        }
+    </script>
+</body>
+
+</html>
