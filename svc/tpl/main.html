@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css" />
+    <title>IIneKoKo</title>
+    <style type="text/css">
+        #id_main_contaier {
+            padding-top: 6em;
+            padding-bottom: 1em;
+        }
+
+        .contaier {
+            margin-top: 1em;
+        }
+
+        canvas {
+            padding: 6px;
+            border: 1px solid #CFCFCF;
+        }
+
+        #canvas_wrapper {
+            width: 512px;
+            margin: 1em auto;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- menu -->
+    <div class="one column computer tablet only row">
+        <div class="column">
+            <div class="ui inverted top fixed menu">
+                <div id="id_event_header" class="header item">
+                    IIneKoKo
+                </div>
+                {% if login_status is true %}
+                <a id="id_menu_image_lst" v-on:click="evt_click" class="item cc_menu" href="javascript:void(0);">
+                    <i class="list icon"></i>&nbsp;一覧表示</a>
+                <a id="id_menu_image_new" v-on:click="evt_click" class="item cc_menu" href="javascript:void(0);">
+                    <i class="file icon"></i>&nbsp;新規作成</a>
+                <div id="id_menu_mode_space" class="right menu">
+                    <a id="id_menu_logout" data-target-view="#id_view_file" class="item cc_menu" href="/logout">
+                        <i class="sign out alternate icon"></i>&nbsp;ログアウト</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div id="id_main_contaier" class="ui container">
+        {% block blk_main_content %}
+        {% endblock %}
+    </div>
+
+    <!-- jQuery http://jquery.com/ -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- Semantic UI https://semantic-ui.com/ -->
+    <script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/1.5.0/fabric.min.js"></script>
+    <script type="text/javascript" src="./js/main.js"></script>
+    <script type="text/javascript" src="./js/async_request.js"></script>
+    {% if login_status is true %}
+    <script type="text/javascript">
+        window.onload = function () {
+            iinekoko.main();
+        }
+    </script>
+    {% endif %}
+
+</body>
+
+</html>
