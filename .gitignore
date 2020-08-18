@@ -1,9 +1,9 @@
-
 .DS_Store
 .vscode
 .env
 config.ini
 node_modules
 __pycache__
+ref/*.jpeg
 
 package-lock.json

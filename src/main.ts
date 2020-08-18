@@ -16,8 +16,9 @@ namespace iinekoko {
     const CANVAS_COLOR_BK = "#EFEFEF";
     const CANVAS_MARK_SIZE_MIN = 16;
     const CANVAS_MARK_SIZE_MAX = 256;
-    const AUTO_UPDATE_TIME_MSEC = 3000;
-    export const COLOR = { "R": "#FF0000", "G": "#00FF00", "B": "#0000FF" };
+    const AUTO_UPDATE_TIME_MSEC = 1000;
+    const TOPPAGE_URL = "http://127.0.0.1:8000/";
+    export const COLOR = ["#FF0000", "#00FF00", "#0000FF"];
 
     export enum E_CANVAS_MODE {
         CANVAS_LST,
@@ -28,6 +29,7 @@ namespace iinekoko {
     var image_ref: string = "";
     export var o_iine_canvas: CIIneCanvas = null;
     var o_vue_image_ref_list = null;
+    export var o_vue_menu_canvas_new = null;
     export var o_vue_menu_canvas_mod = null;
 
     class CIIneCanvas {
@@ -111,18 +113,22 @@ namespace iinekoko {
         }
 
         erase() {
-            if (o_vue_menu_canvas_mod.desc_r.o_shape != null) {
-                this.o_layerMod.remove(o_vue_menu_canvas_mod.desc_r.o_shape);
-                o_vue_menu_canvas_mod.desc_r.o_shape = null;
+
+            const list_mark = [
+                o_vue_menu_canvas_mod.desc_r,
+                o_vue_menu_canvas_mod.desc_g,
+                o_vue_menu_canvas_mod.desc_b
+            ];
+
+            for (let n = 0; n < list_mark.length; n++) {
+                const item = list_mark[n];
+                if (item.o_shape != null) {
+                    this.o_layerMod.remove(item.o_shape);
+                    item.o_shape = null;
+                }
             }
-            if (o_vue_menu_canvas_mod.desc_g.o_shape != null) {
-                this.o_layerMod.remove(o_vue_menu_canvas_mod.desc_g.o_shape);
-                o_vue_menu_canvas_mod.desc_g.o_shape = null;
-            }
-            if (o_vue_menu_canvas_mod.desc_b.o_shape != null) {
-                this.o_layerMod.remove(o_vue_menu_canvas_mod.desc_b.o_shape);
-                o_vue_menu_canvas_mod.desc_b.o_shape = null;
-            }
+
+            this.o_canvas.renderAll();
 
             this.order_auto_save();
         }
@@ -176,60 +182,45 @@ namespace iinekoko {
 
         evt_auto_save() {
 
-            let list_mark = [];
+            const list_mark = [
+                { "name": "mark_r", "object": o_vue_menu_canvas_mod.desc_r.o_shape },
+                { "name": "mark_g", "object": o_vue_menu_canvas_mod.desc_g.o_shape },
+                { "name": "mark_b", "object": o_vue_menu_canvas_mod.desc_b.o_shape },
+            ];
+            let dict_immrk = {};
+            let n_mark_count = 0;
 
-            if (o_vue_menu_canvas_mod.desc_r.o_shape != null) {
-                list_mark.push(
-                    {
-                        "name": "R",
+            for (let n = 0; n < list_mark.length; n++) {
+                const item = list_mark[n];
+                if (item.object != null) {
+                    dict_immrk[item.name] = {
+                        "name": "",
                         "shape_type": "circle",
-                        "radius": o_vue_menu_canvas_mod.desc_r.o_shape.radius,
-                        "left": o_vue_menu_canvas_mod.desc_r.o_shape.left,
-                        "top": o_vue_menu_canvas_mod.desc_r.o_shape.top
-                    }
-                );
-            }
-            if (o_vue_menu_canvas_mod.desc_g.o_shape != null) {
-                list_mark.push(
-                    {
-                        "name": "G",
-                        "shape_type": "circle",
-                        "radius": o_vue_menu_canvas_mod.desc_g.o_shape.radius,
-                        "left": o_vue_menu_canvas_mod.desc_g.o_shape.left,
-                        "top": o_vue_menu_canvas_mod.desc_g.o_shape.top
-                    }
-                );
-            }
-            if (o_vue_menu_canvas_mod.desc_b.o_shape != null) {
-                list_mark.push(
-                    {
-                        "name": "B",
-                        "shape_type": "circle",
-                        "radius": o_vue_menu_canvas_mod.desc_b.o_shape.radius,
-                        "left": o_vue_menu_canvas_mod.desc_b.o_shape.left,
-                        "top": o_vue_menu_canvas_mod.desc_b.o_shape.top
-                    }
-                );
+                        "left": item.object.left,
+                        "top": item.object.top,
+                        "radius": item.object.radius
+                    };
+                    n_mark_count += 1;
+                } else {
+                    dict_immrk[item.name] = null;
+                }
             }
 
-            let dict_param = {
-                "id_image_ref": image_ref
-            }
+            dict_immrk["hex_hash"] = image_ref
 
             let url = null;
 
-            if (list_mark.length == 0) {
-                url = "/api/remove_image_mrk";
+            if (n_mark_count == 0) {
+                url = "/api/remove_image_mrk/" + image_ref;
             } else {
                 url = "/api/append_image_mrk";
-                dict_param["list_mark"] = list_mark;
             }
 
             $.ajax(
                 {
                     url: url,
                     type: "POST",
-                    data: JSON.stringify(dict_param),
+                    data: JSON.stringify(dict_immrk),
                     cache: false,
                     contentType: false,
                     processData: false,
@@ -272,14 +263,11 @@ namespace iinekoko {
     function file_load(image_data: Blob) {
         const o_reader = new FileReader();
 
-        //canvas_init("id_canvas_viewer");
-
         o_reader.onload = function (f) {
             const o_image = new Image();
             o_image.src = f.target.result as string;
             o_image.onload = function () {
                 const o_reference_image = new fabric.Image(o_image);
-
                 o_iine_canvas.set(o_reference_image);
             }
         }
@@ -300,42 +288,6 @@ namespace iinekoko {
         if (o_evt.originalEvent.dataTransfer.files.length == 1) {
             file_load(o_evt.originalEvent.dataTransfer.files[0]);
         }
-    }
-
-    function evt_btn_submit_file(o_evt: any) {
-
-        const canvas_image_ref = o_iine_canvas.to_json();
-        if (canvas_image_ref == null) { return; }
-
-        let dict_param = {
-            "title": $('input[name="text_title"]').val(),
-            "desc_r": $('input[name="text_r"]').val(),
-            "desc_g": $('input[name="text_g"]').val(),
-            "desc_b": $('input[name="text_b"]').val(),
-            "check_size": $('input[name="check_size"]:checked').val(),
-            "image_ref": canvas_image_ref
-        }
-
-        const o_xhr = $.ajax(
-            {
-                url: "/api/new_image_ref",
-                type: "POST",
-                data: JSON.stringify(dict_param),
-                cache: false,
-                contentType: false,
-                processData: false,
-                dataType: "json"
-            }
-        );
-
-        o_xhr.done(
-            function (jsondata, status, o_xhr) {
-                console.log("OK");
-                view_change(E_CANVAS_MODE.CANVAS_MOD);
-            }
-        ).fail(
-            function (o_xhr, status, o_err) { console.log("NG"); }
-        );
     }
 
     function evt_btn_upload_file(o_evt: any) {
@@ -378,7 +330,6 @@ namespace iinekoko {
             }
         ).done(
             function (jsondata, status, o_xhr) {
-                console.log("OK");
                 for (let n: number = 0; n < jsondata.length; n++) {
                     const r = jsondata[n];
                     o_vue_image_ref_list.list_record.push({
@@ -386,12 +337,10 @@ namespace iinekoko {
                         "title": r.value.title,
                         "created_at": r.key[1]
                     });
-                    console.log(jsondata[n]);
                 }
             }
         ).fail(
             function (o_xhr, status, o_err) {
-                console.log("NG");
             }
         );
     }
@@ -402,15 +351,15 @@ namespace iinekoko {
 
     export function main() {
         const dict_param: { [key: string]: string } = get_url_param();
+
+        console.log("v2");
+
         image_ref = dict_param["image_ref"];
 
         $(".ui.radio.checkbox").checkbox();
 
         $("#id_file_droparea").on("dragover", evt_droparea_dragover);
         $("#id_file_droparea").on("drop", evt_droparea_drop);
-
-        $("#id_btn_submit_file").on("click", evt_btn_submit_file);
-        $("#id_btn_upload_file").on("change", evt_btn_upload_file);
 
         // menu
         new Vue({
@@ -424,6 +373,7 @@ namespace iinekoko {
                 }
             }
         });
+
         new Vue({
             el: "#id_menu_image_new",
             methods: {
@@ -431,7 +381,64 @@ namespace iinekoko {
             }
         });
 
-        console.log("xx3");
+        o_vue_menu_canvas_new = new Vue({
+            el: "#id_menu_canvas_new",
+            data: {
+                title: "",
+                desc_r: "",
+                desc_g: "",
+                desc_b: "",
+                err_title: false,
+                err_desc: false,
+                err_image_ref: false
+            },
+            methods: {
+                evt_click_submit: function () {
+                    const canvas_image_ref = o_iine_canvas.to_json();
+
+                    this.err_title = this.title.length > 0 ? false : true;
+                    this.err_desc = (this.desc_r.length + this.desc_g.length + this.desc_b.length) > 0 ? false : true;
+                    this.err_image_ref = canvas_image_ref != null ? false : true;
+
+                    if ((this.err_title || this.err_desc || this.err_image_ref) == false) {
+
+                        const dict_param = {
+                            "title": this.title,
+                            "desc_r": this.desc_r,
+                            "desc_g": this.desc_g,
+                            "desc_b": this.desc_b,
+                            "image_ref": canvas_image_ref.src
+                        }
+
+                        $.ajax(
+                            {
+                                url: "/api/new_image_ref",
+                                type: "POST",
+                                data: JSON.stringify(dict_param),
+                                cache: false,
+                                contentType: false,
+                                processData: false,
+                                dataType: "json"
+                            }
+                        ).done(
+                            function (jsondata, status, o_xhr) {
+                                location.href = TOPPAGE_URL + "?image_ref=" + jsondata["doc"]["_id"];
+                            }
+                        ).fail(
+                            function (o_xhr, status, o_err) { }
+                        );
+                    }
+                },
+                evt_change_image_ref: function (o_evt) {
+                    o_evt.preventDefault();
+
+                    if (o_evt.target.files.length == 1) {
+                        file_load(o_evt.target.files[0]);
+                    }
+                }
+            }
+        });
+
         o_vue_menu_canvas_mod = new Vue({
             el: "#id_menu_canvas_mod",
             data: {
@@ -439,9 +446,9 @@ namespace iinekoko {
                 title: "",
                 visible_mod: true,
                 visible_mrk: true,
-                desc_r: { label: "", o_shape: null, color: "#FF0000", visible: true },
-                desc_g: { label: "", o_shape: null, color: "#00FF00", visible: true },
-                desc_b: { label: "", o_shape: null, color: "#0000FF", visible: true },
+                desc_r: { label: "", o_shape: null, color: COLOR[0], visible: true },
+                desc_g: { label: "", o_shape: null, color: COLOR[1], visible: true },
+                desc_b: { label: "", o_shape: null, color: COLOR[2], visible: true },
                 list_record: []
             },
             methods: {
@@ -456,8 +463,9 @@ namespace iinekoko {
                     o_iine_canvas.o_canvas.renderAll();
                 },
                 evt_click_erase: function () { o_iine_canvas.erase(); },
-                evt_click_delete: function () { },
-
+                evt_click_delete: function () {
+                    del_image_ref(image_ref, TOPPAGE_URL);
+                },
                 evt_click_r: function (o_evt) {
                     this.active_desc = 0;
                 },
@@ -474,6 +482,11 @@ namespace iinekoko {
             el: "#id_image_lst",
             data: {
                 list_record: []
+            },
+            methods: {
+                evt_click_delete: function (document_id: string) {
+                    del_image_ref(document_id, TOPPAGE_URL);
+                }
             }
         });
 
@@ -489,9 +502,9 @@ namespace iinekoko {
 
             $.ajax(
                 {
-                    url: "/api/get_image_ref",
+                    url: "/api/get_image_ref/" + image_ref,
                     type: "POST",
-                    data: JSON.stringify({ "document_id": image_ref }),
+                    data: {},
                     cache: false,
                     contentType: false,
                     processData: false,
@@ -499,20 +512,23 @@ namespace iinekoko {
                 }
             ).done(
                 function (jsondata, status, o_xhr) {
-                    o_vue_menu_canvas_mod.title = jsondata["doc"].title;
-                    for (let n = 0; n < jsondata["doc"].list_col_desc.length; n++) {
-                        const item = jsondata["doc"].list_col_desc[n];
-                        switch (item.name) {
-                            case "R": o_vue_menu_canvas_mod.desc_r.label = item.value; break;
-                            case "G": o_vue_menu_canvas_mod.desc_g.label = item.value; break;
-                            case "B": o_vue_menu_canvas_mod.desc_b.label = item.value; break;
-                        }
-                    }
+                    const o_doc = jsondata["doc"];
 
-                    Base64ToImage(jsondata["ref"], function (o_image) {
-                        const o_reference_image = new fabric.Image(o_image);
-                        o_iine_canvas.set(o_reference_image);
-                    });
+                    if (o_doc == null) {
+                        location.href = TOPPAGE_URL;
+                    } else {
+                        o_vue_menu_canvas_mod.title = o_doc.title;
+                        o_vue_menu_canvas_mod.desc_r.label = o_doc.desc_r;
+                        o_vue_menu_canvas_mod.desc_r.visible = o_doc.desc_r.length > 0 ? true : false;
+                        o_vue_menu_canvas_mod.desc_g.label = o_doc.desc_g;
+                        o_vue_menu_canvas_mod.desc_g.visible = o_doc.desc_g.length > 0 ? true : false;
+                        o_vue_menu_canvas_mod.desc_b.label = o_doc.desc_b;
+                        o_vue_menu_canvas_mod.desc_b.visible = o_doc.desc_b.length > 0 ? true : false;
+
+                        fabric.Image.fromURL("./ref/" + o_doc.hex_hash + ".jpeg", function (o) {
+                            o_iine_canvas.set(o);
+                        });
+                    }
                 }
             ).fail(
                 function (o_xhr, status, o_err) { console.log("NG"); }

@@ -13,7 +13,11 @@
             <tr v-for="r in list_record">
                 <td><a v-bind:href="'?image_ref=' + r.document_id">{{ r.title }}</a></td>
                 <td>{{ r.created_at }}</td>
-                <td><button class="ui icon button"><i class="trash alternate icon"></i></button></td>
+                <td>
+                    <button v-on:click="evt_click_delete(r.document_id)" class="ui icon button">
+                        <i class="trash alternate icon"></i>
+                    </button>
+                </td>
             </tr>
         </tbody>
     </table>
@@ -21,87 +25,65 @@
 </div>
 
 <div id="id_view_new" class="ccheck_view" style="display: none;">
-    <form id="id_form_iine_file">
-        <div id="canvas_wrapper">
-            <canvas id="id_canvas_new" width="512" height="512"></canvas>
-        </div>
-
-        <div class="ui form">
-            <div class="ui equal width form">
-                <div class="fields">
-                    <div class="required field">
-                        <label>タイトル</label>
-                        <input name="text_title" type="text" />
-                    </div>
-                </div>
-                <div class="fields">
-                    <div class=" field">
-                        <label><i class="red bookmark icon"></i>項目の説明</label>
-                        <input name="text_r" type="text" />
-                    </div>
-                    <div class=" field">
-                        <label><i class="green bookmark icon"></i>項目の説明</label>
-                        <input name="text_g" type="text" />
-                    </div>
-                    <div class=" field">
-                        <label><i class="blue bookmark icon"></i>項目の説明</label>
-                        <input name="text_b" type="text" />
-                    </div>
-                </div>
+    <span id="id_menu_canvas_new">
+        <form id="id_form_iine_file">
+            <div id="canvas_wrapper">
+                <canvas id="id_canvas_new" width="512" height="512"></canvas>
             </div>
-
-            <div class="fields">
-                <label for="fruit">選択領域の最大サイズ</label>
-                <div class="field">
-                    <div class="ui radio checkbox">
-                        <input type="radio" name="check_size" value="25" class="hidden" />
-                        <label>25%</label>
+            <div class="ui form">
+                <div class="ui equal width form">
+                    <div class="fields">
+                        <div class="required field" v-bind:class="{error: err_title}">
+                            <label>タイトル</label>
+                            <input v-model.trim="title" name="title" type="text" />
+                        </div>
+                    </div>
+                    <div class="fields">
+                        <div class="field" v-bind:class="{error: err_desc}">
+                            <label><i class="red bookmark icon"></i>項目の説明</label>
+                            <input v-model.trim="desc_r" name="desc_r" type="text" />
+                        </div>
+                        <div class="field" v-bind:class="{error: err_desc}">
+                            <label><i class="green bookmark icon"></i>項目の説明</label>
+                            <input v-model.trim="desc_g" name="desc_g" type="text" />
+                        </div>
+                        <div class="field" v-bind:class="{error: err_desc}">
+                            <label><i class="blue bookmark icon"></i>項目の説明</label>
+                            <input v-model.trim="desc_b" name="desc_b" type="text" />
+                        </div>
                     </div>
                 </div>
-                <div class="field">
-                    <div class="ui radio checkbox">
-                        <input type="radio" name="check_size" value="50" class="hidden" />
-                        <label>50%</label>
+                <div class="ui equal width fields">
+                    <div class="required field" v-bind:class="{error: err_image_ref}">
+                        <input v-on:change="evt_change_image_ref" type="file" name="file[]" />
                     </div>
                 </div>
-                <div class="field">
-                    <div class="ui radio checkbox">
-                        <input type="radio" name="check_size" value="75" class="hidden" />
-                        <label>75%</label>
-                    </div>
-                </div>
-                <div class="field">
-                    <div class="ui radio checkbox">
-                        <input type="radio" name="check_size" value="100" class="hidden" checked="checked" />
-                        <label>100%</label>
-                    </div>
-                </div>
-            </div>
-
-            <input id="id_btn_upload_file" class="ui button" type="file" name="file[]" />
+                <!--
             <div id="id_file_droparea" class="ui placeholder segment">
                 <div class="ui icon header">
                     <i class="file outline icon"></i>
                     画像ファイルをここにドロップ
                 </div>
             </div>
-
-            <div class="ui container">
-                <div id="id_btn_submit_file" class="ui primary submit right labeled icon button">
-                    作成
-                    <i class="checkmark icon"></i>
+            -->
+                <div class="ui equal width form">
+                    <div v-on:click="evt_click_submit" class="fluid ui primary huge button">
+                        作成
+                    </div>
                 </div>
             </div>
-        </div>
-    </form>
+        </form>
+    </span>
 </div>
 
 <!-- -->
 <div id="id_view_mod" class="ccheck_view" style="display: none;">
     <span id="id_menu_canvas_mod">
         <div class="ui huge menu">
-            <a class="item" v-on:click="evt_click_user" href="javascript:void(0);"><i class="user icon"></i></a>
-            <a class="item" v-on:click="evt_click_users" href="javascript:void(0);"><i class="users icon"></i></a>
+            <a class="item" v-bind:class="{active: visible_mod}" v-on:click="evt_click_user"
+                href="javascript:void(0);"><i class="user icon"></i></a>
+            <a class="item" v-bind:class="{active: visible_mrk}" v-on:click="evt_click_users"
+                href="javascript:void(0);"><i class="users icon"></i></a>
             <a class="item" v-on:click="evt_click_erase" href="javascript:void(0);"><i class="eraser icon"></i></a>
             <div class="right menu">
                 <!--

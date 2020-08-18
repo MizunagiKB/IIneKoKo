@@ -1,5 +1,6 @@
 import sys
 import unittest
+import configparser
 
 sys.path.append("./svc")
 
@@ -7,8 +8,14 @@ sys.path.append("./svc")
 class CIIneKoKo_DB(unittest.TestCase):
     def setUp(self):
         import iinekoko_db
-        self.o_conn = iinekoko_db.CDatabase()
+        self.o_conf = configparser.ConfigParser()
+        self.o_conf.read("./svc/config.ini")
+        self.o_conn = iinekoko_db.CDatabase(self.o_conf)
 
+    def test_database(self):
+        pass
+
+    """
     def test_image_encdec(self):
         import iinekoko_db
 
@@ -76,6 +83,7 @@ class CIIneKoKo_DB(unittest.TestCase):
 
         TW_ID = "431236837"
         self.o_conn.get_image_ref_list(TW_ID)
+    """
 
 
 # [EOF]
