@@ -15,7 +15,8 @@ var iinekoko;
     const CANVAS_MARK_SIZE_MIN = 16;
     const CANVAS_MARK_SIZE_MAX = 256;
     const AUTO_UPDATE_TIME_MSEC = 1000;
-    const TOPPAGE_URL = "http://127.0.0.1:8000/";
+    //const TOPPAGE_URL = "http://127.0.0.1:8000/";
+    const TOPPAGE_URL = "https://www.mizunagi-works.com/gadgets/IIneKoKo/";
     iinekoko.COLOR = ["#FF0000", "#00FF00", "#0000FF"];
     let E_CANVAS_MODE;
     (function (E_CANVAS_MODE) {
