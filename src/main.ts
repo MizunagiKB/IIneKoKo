@@ -212,9 +212,9 @@ namespace iinekoko {
             let url = null;
 
             if (n_mark_count == 0) {
-                url = "/api/remove_image_mrk/" + image_ref;
+                url = "./api/remove_image_mrk/" + image_ref;
             } else {
-                url = "/api/append_image_mrk";
+                url = "./api/append_image_mrk";
             }
 
             $.ajax(
@@ -321,7 +321,7 @@ namespace iinekoko {
     function view_reload() {
         $.ajax(
             {
-                url: "/api/get_image_ref_list",
+                url: "./api/get_image_ref_list",
                 type: "GET",
                 data: {},
                 dataType: "json",
@@ -413,7 +413,7 @@ namespace iinekoko {
 
                         $.ajax(
                             {
-                                url: "/api/new_image_ref",
+                                url: "./api/new_image_ref",
                                 type: "POST",
                                 data: JSON.stringify(dict_param),
                                 cache: false,
@@ -503,7 +503,7 @@ namespace iinekoko {
 
             $.ajax(
                 {
-                    url: "/api/get_image_ref/" + image_ref,
+                    url: "./api/get_image_ref/" + image_ref,
                     type: "POST",
                     data: {},
                     cache: false,

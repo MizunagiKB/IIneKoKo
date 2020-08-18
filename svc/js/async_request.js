@@ -11,7 +11,7 @@ var iinekoko;
 (function (iinekoko) {
     function del_image_ref(image_ref, url) {
         $.ajax({
-            url: "/api/del_image_ref/" + image_ref,
+            url: "./api/del_image_ref/" + image_ref,
             type: "POST",
             data: {},
             dataType: "json",
@@ -26,7 +26,7 @@ var iinekoko;
     iinekoko.del_image_ref = del_image_ref;
     function get_image_mrk(image_ref) {
         $.ajax({
-            url: "/api/get_image_mrk/" + image_ref,
+            url: "./api/get_image_mrk/" + image_ref,
             type: "POST",
             data: {},
             dataType: "json",
@@ -72,7 +72,7 @@ var iinekoko;
     iinekoko.get_image_mrk = get_image_mrk;
     function get_image_mrk_list(image_ref) {
         $.ajax({
-            url: "/api/get_image_mrk_list/" + image_ref,
+            url: "./api/get_image_mrk_list/" + image_ref,
             type: "POST",
             data: {},
             dataType: "json",

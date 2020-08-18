@@ -15,7 +15,7 @@ namespace iinekoko {
     export function del_image_ref(image_ref: string, url: string) {
         $.ajax(
             {
-                url: "/api/del_image_ref/" + image_ref,
+                url: "./api/del_image_ref/" + image_ref,
                 type: "POST",
                 data: {},
                 dataType: "json",
@@ -36,7 +36,7 @@ namespace iinekoko {
     export function get_image_mrk(image_ref: string) {
         $.ajax(
             {
-                url: "/api/get_image_mrk/" + image_ref,
+                url: "./api/get_image_mrk/" + image_ref,
                 type: "POST",
                 data: {},
                 dataType: "json",
@@ -86,7 +86,7 @@ namespace iinekoko {
     export function get_image_mrk_list(image_ref: string) {
         $.ajax(
             {
-                url: "/api/get_image_mrk_list/" + image_ref,
+                url: "./api/get_image_mrk_list/" + image_ref,
                 type: "POST",
                 data: {},
                 dataType: "json",

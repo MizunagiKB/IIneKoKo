@@ -177,10 +177,10 @@ var iinekoko;
             dict_immrk["hex_hash"] = image_ref;
             let url = null;
             if (n_mark_count == 0) {
-                url = "/api/remove_image_mrk/" + image_ref;
+                url = "./api/remove_image_mrk/" + image_ref;
             }
             else {
-                url = "/api/append_image_mrk";
+                url = "./api/append_image_mrk";
             }
             $.ajax({
                 url: url,
@@ -268,7 +268,7 @@ var iinekoko;
     }
     function view_reload() {
         $.ajax({
-            url: "/api/get_image_ref_list",
+            url: "./api/get_image_ref_list",
             type: "GET",
             data: {},
             dataType: "json",
@@ -342,7 +342,7 @@ var iinekoko;
                             "image_ref": canvas_image_ref.src
                         };
                         $.ajax({
-                            url: "/api/new_image_ref",
+                            url: "./api/new_image_ref",
                             type: "POST",
                             data: JSON.stringify(dict_param),
                             cache: false,
@@ -420,7 +420,7 @@ var iinekoko;
             iinekoko.get_image_mrk(image_ref);
             iinekoko.get_image_mrk_list(image_ref);
             $.ajax({
-                url: "/api/get_image_ref/" + image_ref,
+                url: "./api/get_image_ref/" + image_ref,
                 type: "POST",
                 data: {},
                 cache: false,
