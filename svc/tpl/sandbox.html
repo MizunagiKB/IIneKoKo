@@ -1,0 +1,333 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title></title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css" />
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+            <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
+            <script src="//cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <style>
+        .foot.container {
+            margin-top: 1em;
+            margin-bottom: 2em;
+        }
+
+        canvas {
+            border: 1px solid #CFCFCF;
+        }
+
+        .fade-enter-active,
+        .fade-leave-active {
+            transition: opacity .5s;
+        }
+
+        .fade-enter,
+        .fade-leave-to {
+            opacity: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="id-sidemenu" class="ui top sidebar inverted segment">
+        <div class="ui three item inverted huge menu">
+            <a v-on:click="click_item_lst" class="item"><i class="list alternate outline icon"></i>{{ test }}
+                つくったもの</a>
+            <a v-on:click="click_item_new" class="item">つくる</a>
+            <a v-on:click="click_item_mrk" class="item">もどる</a>
+        </div>
+    </div>
+    <div class="pusher">
+        <div id="id-view">
+            <div class="ui three item huge menu">
+                <a v-on:click="click_manual" class="item">
+                    つかいかた
+                </a>
+                <a v-on:click="open_sidemenu" class="item" href="#">
+                    <i class="bars icon"></i>
+                </a>
+                <a v-on:click="click_auth" class="item">
+                    <span v-if="b_signin">
+                        サインアウト<i class="sign-out icon"></i>
+                    </span>
+                    <span v-else="b_signin">
+                        サインイン<i class="sign-in icon"></i>
+                    </span>
+                </a>
+            </div>
+
+            <div v-show="display_view == 'man'">
+                <div class="ui container">
+                    <h1>つかいかた</h1>
+                    ああああ
+                </div>
+            </div>
+
+            <div v-show="display_view == 'lst'">
+                <div class="ui container">
+                    <div class="ui icon message">
+                        <i class="info icon"></i>
+                        <div class="content">
+                            <div class="header">
+                                つくったものについて
+                            </div>
+                            <p>
+                                ひとりあたり10個までつくれます。<br />
+                                つくったものは30日後に自動的に消えます。
+                            </p>
+                        </div>
+                    </div>
+                    <p class="ui horizontal divider header">
+                        いままでにつくったもの
+                    </p>
+                    <table class="ui single line table">
+                        <thead>
+                            <tr>
+                                <th>タイトル</th>
+                                <th>日付</th>
+                                <th>アイコン</th>
+                            </tr>
+                        </thead>
+                        <tbody v-for="r in list_mrk_user">
+                            <tr>
+                                <td>{% raw %}{{ r.username }}{% endraw %}</td>
+                                <td>{% raw %}{{ r.created_at }}{% endraw %}</td>
+                                <td>
+                                    <button class="ui icon button"><i class="trash alternate outline icon"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div v-show="display_view == 'mrk' || display_view == 'new'">
+                <div class="ui center aligned grid">
+                    <div class="row">
+                        <div id="main_frame">
+                        </div>
+                    </div>
+                    <div class="row" v-if="display_view == 'mrk'">
+                        <p class="ui horizontal divider header">{% raw %}{{ title }}{% endraw %}</p>
+                    </div>
+
+                    <div class="row" v-if="display_view == 'mrk'">
+                        <div class="ui buttons">
+                            <button v-on:click="click_submit" class="ui labeled icon primary button"
+                                v-bind:class="{disabled: !b_mrk}">
+                                <i class="heart icon"></i>
+                                {% raw %}{{ b_mrk ? "ここにきめた" : "いいなと思ったところをタップ" }}{% endraw %}
+                            </button>
+                            <div class="or"></div>
+                            <button v-on:click="click_retake" class="ui right labeled icon button"
+                                v-bind:class="{disabled: !b_mrk}">
+                                やりなおし
+                                <i class="undo icon"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row" v-else-if="display_view == 'new'">
+                        <div class="ui form">
+                            <div class="ui equal width fields">
+                                <div class="required field">
+                                    <input type="text" name="title" placeholder="タイトル" />
+                                </div>
+                            </div>
+                            <div class="ui equal width fields">
+                                <div class="required field">
+                                    <input type="file" name="file[]" />
+                                </div>
+                            </div>
+                            <div class="ui equal width form">
+                                <div class="fluid ui primary button">
+                                    登録
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="ui horizontal divider header">
+                    タップしてくれたひと（最大100件）
+                </p>
+
+                <div class="ui container" v-show="display_view == 'mrk'">
+                    <table class="ui single line table">
+                        <thead>
+                            <tr>
+                                <th>名前</th>
+                                <th>日付</th>
+                                <th>アイコン</th>
+                            </tr>
+                        </thead>
+                        <tbody v-for="r in list_mrk_user">
+                            <tr>
+                                <td>{% raw %}{{ r.username }}{% endraw %}</td>
+                                <td>{% raw %}{{ r.created_at }}{% endraw %}</td>
+                                <td><i class="heart icon"></i></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+            <div class="ui foot right aligned container">
+                <div id="id_tpl_foot">
+                    <p>Programming and Design&nbsp;<a href="https://twitter.com/MizunagiKB">@MizunagiKB</a></p>
+                    <p>GitHub&nbsp;<a href="https://github.com/MizunagiKB/IIneKoKo">MizunagiKB / IIneKoKo</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/5.3.3/pixi.min.js"
+        integrity="sha512-J7UHpLx39bpqtP+aWP6yIuXroFk0XPkDQaS9zDthM4TVeaXstWYh556gxsXwwIwpAPSoKqVHW+eqz3B93SpyKg=="
+        crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.min.js"></script>
+
+    <script type="text/javascript">
+
+        SCREEN_W = 960;
+        SCREEN_H = 540;
+        MRK_SIZE = 32;
+        POINT_COLOR = 0xFF0000;
+        FRAME_COLOR = 0xEFEFEF;
+        f_scale = 1.0;
+
+        o_renderer = null;
+        o_layer_ref = null;
+        o_layer_mrk = null;
+        o_mrk_graph = null;
+        b_mrk = false;
+
+        function evt_window_resize() {
+            let fW = SCREEN_W * 1.0;
+            let fH = SCREEN_H * 1.0;
+            let fScale = 1.0;
+
+            const fAspectSrc = fW / fH;
+            const fAspectDst = window.innerWidth / window.innerHeight;
+
+            if (fAspectDst > fAspectSrc) {
+                if (window.innerHeight < SCREEN_H) {
+                    fScale = window.innerHeight / (SCREEN_H * 1.0);
+                    fW = fW * fScale;
+                    fH = window.innerHeight;
+                }
+            } else {
+                if (window.innerWidth < SCREEN_W) {
+                    fScale = window.innerWidth / (SCREEN_W * 1.0);
+                    fW = window.innerWidth;
+                    fH = fH * fScale;
+                }
+            }
+
+            f_scale = fScale;
+            o_renderer.resize(fW, fH);
+
+            window.scrollTo(0, 0);
+        }
+
+        window.onresize = function () {
+            evt_window_resize();
+        }
+
+        function update_screen() {
+            o_renderer.clear();
+            o_renderer.render(o_layer_mrk);
+        }
+
+        function sideber(b_show) {
+            const show = b_show ? "show" : "hide"
+            $('.ui.sidebar')
+                .sidebar("setting", "transition", "push")
+                .sidebar(show)
+                ;
+        }
+
+        window.onload = function () {
+            o_renderer = new PIXI.autoDetectRenderer(
+                { width: SCREEN_W, height: SCREEN_H, antialias: true, backgroundColor: FRAME_COLOR, clearBeforeRender: false });
+
+            interaction = o_renderer.plugins.interaction;
+
+            o_layer_mrk = new PIXI.Container();
+            o_mrk_graph = new PIXI.Graphics();
+            o_mrk_graph.interactive = false;
+            o_layer_mrk.addChild(o_mrk_graph);
+
+            interaction.on("pointerdown", function (o_evt) {
+                let x = o_evt.data.global.x / f_scale;
+                let y = o_evt.data.global.y / f_scale;
+
+                o_mrk_graph.clear();
+                o_mrk_graph.beginFill(POINT_COLOR, 0.5);
+                o_mrk_graph.drawCircle(x, y, MRK_SIZE);
+                o_mrk_graph.endFill();
+
+                update_screen();
+
+                o_view.b_mrk = true;
+
+                console.log("w");
+            });
+
+            var x1 = new Vue({
+                el: "#id-sidemenu",
+                data: {
+                    test: "va"
+                },
+                methods: {
+                    click_item_lst: function (o_evt) { o_view.display_view = "lst"; sideber(false); },
+                    click_item_new: function (o_evt) { o_view.display_view = "new"; sideber(false); },
+                    click_item_mrk: function (o_evt) { o_view.display_view = "mrk"; sideber(false); }
+                }
+            });
+
+            o_view = new Vue({
+                el: "#id-view",
+                data: {
+                    title: "TEST",
+                    label_submit: "いいなと思ったところをタップ",
+                    b_signin: false,
+                    b_mrk: false,
+                    display_view: "mrk",
+                    list_mrk_user: [{ username: "a", created_at: "0000-00-00 00:00:00+09:00" }]
+                },
+                methods: {
+                    open_sidemenu: function (o_evt) {
+                        sideber(true);
+                    },
+                    click_manual: function (o_evt) { this.display_view = "man"; },
+                    click_auth: function (o_evt) { },
+                    click_submit: function (o_evt) {
+                        //this.list_mrk_user = [{ username: "x", created_at: "ababa" }];
+                        this.list_mrk_user.push({ username: "b", created_at: "0000-00-00 00:00:00+09:00" });
+                        console.log("xx");
+                    },
+                    click_retake: function (o_evt) { o_mrk_graph.clear(); this.b_mrk = false; update_screen(); }
+                }
+            });
+
+            document.getElementById("main_frame").appendChild(o_renderer.view);
+
+            update_screen();
+        }
+    </script>
+</body>
+
+</html>

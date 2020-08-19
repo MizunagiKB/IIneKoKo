@@ -118,6 +118,23 @@ async def logout(o_req: Request, iinekoko_session=Cookie(None)):
     return o_res
 
 
+async def sandbox(o_req: Request, iinekoko_session=Cookie(None)):
+
+    login_status = False
+
+    if iinekoko_session is not None:
+        o_db = iinekoko_db.CDatabase(o_conf)
+        o_doc_sess = iinekoko_db_session.get(o_db, iinekoko_session)
+        if o_doc_sess is not None:
+            o_doc_sess.fetch()
+            login_status = True
+
+    return o_tpl.TemplateResponse("sandbox.html", {
+        "request": o_req,
+        "login_status": login_status
+    })
+
+
 async def new_image_ref(o_model: iinekoko_db_imref.CModelIMRef,
                         iinekoko_session=Cookie(None)):
 
@@ -260,6 +277,7 @@ app.add_api_route("/", index)
 app.add_api_route("/login", login)
 app.add_api_route("/auth", login_auth)
 app.add_api_route("/logout", logout)
+app.add_api_route("/sandbox", sandbox)
 
 app.add_api_route("/api/new_image_ref", new_image_ref, methods=["POST"])
 app.add_api_route("/api/del_image_ref/{document_id}",
