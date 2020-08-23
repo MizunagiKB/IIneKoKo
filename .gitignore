@@ -4,6 +4,6 @@
 config.ini
 node_modules
 __pycache__
-ref/*.jpeg
+svc/ref/*.jpeg
 
 package-lock.json

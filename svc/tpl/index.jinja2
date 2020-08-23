@@ -1,9 +1,0 @@
-{% extends "main.html" %}
-
-{% block blk_main_content %}
-{% if login_status is true %}
-    {% include "main_content_1.html" %}
-{% else%}
-    {% include "main_content_0.html" %}
-{% endif %}
-{% endblock %}

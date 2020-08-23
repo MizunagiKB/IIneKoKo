@@ -1,0 +1,642 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title></title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css"
+        integrity="sha512-8bHTC73gkZ7rZ7vpqUQThUDhqcNFyYi2xgDgPDHc+GXVGHXq+xPjynxIopALmOPqzo9JZj0k6OqqewdGO3EsrQ=="
+        crossorigin="anonymous" />
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+            <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
+            <script src="//cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <style>
+        .foot.container {
+            margin-top: 1em;
+            margin-bottom: 2em;
+        }
+
+        canvas {
+            border: 1px solid #CFCFCF;
+        }
+
+        .fade-enter-active,
+        .fade-leave-active {
+            transition: opacity .5s;
+        }
+
+        .fade-enter,
+        .fade-leave-to {
+            opacity: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="id-sidemenu" class="ui top sidebar inverted segment">
+        <div class="ui three item inverted huge menu">
+            <a v-on:click="click_item_lst" class="item"><i class="folder alternate outline icon"></i>
+                つくったもの</a>
+            <a v-on:click="click_item_new" class="item"><i class="plus square outline icon"></i>つくる</a>
+            <a v-on:click="click_item_off" class="item"><i class="times icon"></i>とじる</a>
+        </div>
+    </div>
+    <div class="pusher">
+        <div id="id-view">
+            <div class="ui three item huge menu">
+                <a v-on:click="click_manual" class="item">
+                    つかいかた
+                </a>
+                <a v-on:click="open_sidemenu" class="item" href="#">
+                    <i class="bars large icon"></i>
+                </a>
+                <a v-bind:href="SIGNIN_STATUS == 1 ? './signout' : 'signin'" class="item">
+                    <img class="ui avatar image" src="{{ o_doc_sess.profile_image_url_https }}"
+                        v-if="SIGNIN_STATUS == 1" />
+                    {% raw %}{{ SIGNIN_STATUS == 1 ? "サインアウト" : "サインイン" }}{% endraw %}
+                    <i class="sign-out icon"></i>
+                </a>
+            </div>
+
+            <div v-show="display_view == E_VIEW_MAN">
+                <div class="ui container">
+                    <h1>つかいかた</h1>
+
+                    <p><img class="ui medium centered bordered rounded image" src="./doc/manual/manual_1.jpg" /></p>
+                    <p>IIneKoKoは画像の場所について「いいね」が出来るウェブサービスです。</p>
+                    <p>画像の気に入ったところにいいねをする以外にも「どのキャラクターが好み？」「一番気になったところはどこ？」といった応用が出来ます。</p>
+                    <div class="ui warning message">
+                        <p>このサービスを利用するにはTwitterアカウントとの連携が必要です。</p>
+                    </div>
+
+                    <h2>いいねのしかた</h2>
+                    <p>画像をタップすると、半透明の赤い丸が画像の上に表示されます。</p>
+                    <p>赤い丸はタップする度に変わりますので、気に入った場所を決めて下さい。</p>
+                    <p>場所が決まったら画像の下にある「ここにきめた」というボタンをクリックします。</p>
+                    <p>「やりなおし」というボタンを押すことで、一旦決めた場所をキャンセルする事が出来ます。</p>
+                    <div class="ui message">
+                        <p>いいねが100人分に達した場合は、それ以上いいねが出来なくなります。</p>
+                    </div>
+
+                    <h2>画像の登録方法</h2>
+                    <p>画像を登録するには、画面上部にある<i class="bars large icon"></i>アイコンをタップして表示されるメニューから行います。</p>
+                    <h3>メニューの説明</h3>
+
+                    <h4><i class="folder alternate outline icon"></i>つくったもの</h4>
+                    <p>自分が登録した画像一覧を表示します。削除もここからおこなえます。</p>
+
+                    <h4><i class="plus square outline icon"></i>つくる</h4>
+                    <p>新しく画像を登録します。画像にはタイトルを64文字まで設定する事が出来ます。</p>
+
+                    <h4><i class="times icon"></i>とじる</h4>
+                    <p>開いたメニューを閉じます</p>
+
+                    <h2>画面サンプル</h2>
+                    <div class="ui small images">
+                        <img src="./doc/manual/manual_1.jpg" />
+                        <img src="./doc/manual/manual_2.jpg" />
+                        <img src="./doc/manual/manual_3.jpg" />
+                        <img src="./doc/manual/manual_4.jpg" />
+                        <img src="./doc/manual/manual_5.jpg" />
+                    </div>
+
+                </div>
+            </div>
+
+            <div v-show="display_view == E_VIEW_LST">
+                <div class="ui container">
+                    <div class="ui icon message">
+                        <i class="info icon"></i>
+                        <div class="content">
+                            <div class="header">
+                                つくったものについて
+                            </div>
+                            <p>
+                                ひとりあたり10個までつくれます。<br />
+                                つくってから30日が経過すると自動的に消えます。
+                            </p>
+                        </div>
+                    </div>
+                    <p class="ui horizontal divider header">
+                        いままでにつくったもの
+                    </p>
+                    <table class="ui single line table">
+                        <thead>
+                            <tr>
+                                <th>タイトル</th>
+                                <th>日付</th>
+                                <th>アイコン</th>
+                            </tr>
+                        </thead>
+                        <tbody v-for="r in list_image_ref">
+                            <tr>
+                                <td>
+                                    <a v-bind:href="'./index?i=' + r.id">
+                                        <img class="ui tiny right spaced image"
+                                            v-bind:src="'./ref/' + r.id + '-thumb.jpeg'" />
+                                        {% raw %}{{ r.value.title }}{% endraw %}
+                                    </a>
+                                </td>
+                                <td>
+
+                                    {% raw %}{{ r.value.created_at }}{% endraw %}
+                                </td>
+                                <td>
+                                    <button v-on:click="click_del($event, r.id)" class="ui icon button"><i
+                                            class="trash alternate outline icon"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div v-show="display_view == E_VIEW_MRK || display_view == E_VIEW_NEW">
+                <div class="ui center aligned grid">
+                    <div class="row">
+                        <div id="main_frame">
+                        </div>
+                    </div>
+
+                    <div class="row" v-if="display_view == E_VIEW_MRK">
+                        {% raw %}{{ title }}{% endraw %}
+                    </div>
+                    <div class="row" v-if="display_view == E_VIEW_MRK">
+                        <a v-bind:href="'https://twitter.com/' + tw_username" class="ui image label">
+                            <img v-bind:src="profile_image_url_https">
+                            {% raw %}{{ tw_username }}{% endraw %}
+                        </a>
+                    </div>
+
+                    <div class="row" v-if="display_view == E_VIEW_MRK">
+                        <div class="ui buttons">
+                            <button v-on:click="click_mrk" class="ui labeled icon primary button"
+                                v-bind:class="{disabled: !b_mrk}">
+                                <i class="heart icon"></i>
+                                {% raw %}{{ b_mrk ? "ここにきめた" : "いいなと思ったところをタップ" }}{% endraw %}
+                            </button>
+                            <div class="or"></div>
+                            <button v-on:click="click_retake" class="ui right labeled icon button">
+                                やりなおし
+                                <i class="undo icon"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row" v-else-if="display_view == E_VIEW_NEW">
+                        <div class="ui form">
+                            <div class="ui equal width fields">
+                                <div class="required field">
+                                    <input v-model="title" type="text" name="title" placeholder="タイトル" />
+                                </div>
+                            </div>
+                            <div class="ui equal width fields">
+                                <div class="required field">
+                                    <input id="id_btn_image_ref" v-on:change="change_image_ref" type="file"
+                                        name="file[]" accept="image/*" />
+                                </div>
+                            </div>
+                            <div class="ui equal width form">
+                                <div v-on:click="click_submit" class="fluid ui primary button">
+                                    登録
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="ui horizontal divider header" v-if="display_view == E_VIEW_MRK">
+                    タップしてくれたひと（最大100件）
+                </p>
+
+                <div class="ui container" v-show="display_view == E_VIEW_MRK">
+                    <table class="ui single line table">
+                        <thead>
+                            <tr>
+                                <th>名前</th>
+                                <th>日付</th>
+                                <th>アイコン</th>
+                            </tr>
+                        </thead>
+                        <tbody v-for="r in list_image_mrk">
+                            <tr>
+                                <td>{% raw %}{{ r.doc.tw_username }}{% endraw %}</td>
+                                <td>{% raw %}{{ r.doc.created_at }}{% endraw %}</td>
+                                <td><i class="heart icon"></i></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+            <div class="ui foot right aligned container">
+                <div id="id_tpl_foot">
+                    <p>Programming and Design&nbsp;<a href="https://twitter.com/MizunagiKB">@MizunagiKB</a></p>
+                    <p>GitHub&nbsp;<a href="https://github.com/MizunagiKB/IIneKoKo">MizunagiKB / IIneKoKo</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"
+        integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg=="
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"
+        integrity="sha512-dqw6X88iGgZlTsONxZK9ePmJEFrmHwpuMrsUChjAw1mRUhUITE5QU9pkcSox+ynfLhL15Sv2al5A0LVyDCmtUw=="
+        crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/5.3.3/pixi.min.js"
+        integrity="sha512-J7UHpLx39bpqtP+aWP6yIuXroFk0XPkDQaS9zDthM4TVeaXstWYh556gxsXwwIwpAPSoKqVHW+eqz3B93SpyKg=="
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.12/vue.min.js"
+        integrity="sha512-BKbSR+cfyxLdMAsE0naLReFSLg8/pjbgfxHh/k/kUC82Hy7r6HtR5hLhobaln2gcTvzkyyehrdREdjpsQwy2Jw=="
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.20.0/axios.min.js"
+        integrity="sha512-quHCp3WbBNkwLfYUMd+KwBAgpVukJu5MncuQaWXgCrfgcxCJAq/fo+oqrRKOj+UKEmyMCG3tb8RB63W+EmrOBg=="
+        crossorigin="anonymous"></script>
+
+    <script type="text/javascript">
+
+        const E_VIEW_MAN = 0;
+        const E_VIEW_LST = 1;
+        const E_VIEW_MRK = 2;
+        const E_VIEW_NEW = 3;
+        {% if signin_status != None %}
+        const SIGNIN_STATUS = {{ signin_status }};
+        {% else %}
+        const SIGNIN_STATUS = 0;
+        {% endif %}
+
+        SCREEN_W = 960;
+        SCREEN_H = 540;
+        MRK_SIZE = 32;
+        POINT_COLOR = 0xFF0000;
+        FRAME_COLOR = 0xEFEFEF;
+        f_scale = 1.0;
+        param_i = null;
+        x_curr = 0;
+        y_curr = 0;
+
+        o_view = null;
+
+        o_renderer = null;
+        o_layer_new = null;
+        o_layer_ref = null;
+        o_layer_mrk = null;
+        o_mrk_graph = null;
+        o_mrk_others_graph = null;
+
+        o_image_new = null;
+        o_image_ref = null;
+
+        // -------------------------------------------------------------------
+        function api_image_ref_new(dict_param) {
+            axios.post("./api/image_ref_new", dict_param).then(function (res) {
+                o_view.display_view = E_VIEW_MRK;
+                o_view.b_mrk = false;
+                o_view.tw_id = res.data.doc.tw_id;
+                o_view.tw_username = res.data.doc.tw_username;
+                o_view.default_profile_image = res.data.doc.default_profile_image;
+                o_view.profile_image_url_https = res.data.doc.profile_image_url_https;
+
+                o_mrk_graph.clear();
+                o_mrk_others_graph.clear();
+
+                if (o_image_new != null) {
+                    if (o_image_new != o_image_ref) {
+                        update_layer(o_layer_ref, o_image_new);
+                        o_image_ref = o_image_new;
+                    }
+                }
+
+                param_i = res.data.doc._id;
+
+                update_screen();
+                // console.log("o", res);
+            }).catch(function (res) { console.log("x", res); });
+        }
+
+        function api_image_ref_del(document_id) {
+            axios.post("./api/image_ref_del/" + document_id, {}).then(function (res) {
+                api_image_ref_get_list();
+                // console.log("o", res);
+            }).catch(function (res) { console.log("x", res); });
+        }
+
+        function api_image_ref_get(document_id) {
+            axios.post("./api/image_ref_get/" + document_id, {}).then(function (res) {
+                if (res.data.doc != null) {
+                    const doc = res.data.doc;
+                    const img = new Image();
+                    img.src = "./ref/" + document_id + "-basic.jpeg";
+                    //img.src = "http://127.0.0.1:5984/iinekoko_imref/" + document_id + "/basic";
+                    img.onload = function () {
+                        update_layer(o_layer_ref, img);
+                        update_screen();
+                        o_image_ref = img;
+                    }
+
+                    o_view.tw_id = doc.tw_id;
+                    o_view.tw_username = doc.tw_username;
+                    o_view.default_profile_image = doc.default_profile_image;
+                    o_view.profile_image_url_https = doc.profile_image_url_https;
+                    o_view.title = doc.title;
+                }
+                // console.log("o - api_image_ref_get", res);
+            }).catch(function (res) { console.log("x", res); });
+        }
+
+        function api_image_ref_get_list() {
+            axios.post("./api/image_ref_get_list", {}).then(function (res) {
+                let list_result = [];
+                for (let n = 0; n < res.data.length; n++) {
+                    const item = res.data[n];
+                    list_result.push(item);
+                }
+                o_view.list_image_ref = list_result;
+                //console.log("o", res);
+            }).catch(function (res) { console.log("x", res); });
+        }
+
+        function api_image_mrk_new(dict_param) {
+            axios.post("./api/image_mrk_new", dict_param).then(function (res) {
+                api_image_mrk_get_list(param_i);
+                // console.log("o - image_mrk_new", res);
+            }).catch(function (res) { console.log("x", res); });
+        }
+
+        function api_image_mrk_del(document_id) {
+            axios.post("./api/image_mrk_del/" + document_id, {}).then(function (res) {
+                api_image_mrk_get_list(document_id);
+                // console.log("o", res);
+            }).catch(function (res) { console.log("x", res); });
+        }
+
+        function api_image_mrk_get_list(document_id) {
+            axios.post("./api/image_mrk_get_list/" + document_id, {}).then(function (res) {
+                let list_result = [];
+                let f_alpha = res.data.length > 0 ? 0.5 / res.data.length : 0.5;
+
+                o_mrk_graph.clear();
+                o_mrk_others_graph.clear();
+                for (let n = 0; n < res.data.length; n++) {
+                    const item = res.data[n];
+
+                    if (item.doc.tw_id == "{{ o_doc_sess.tw_id }}") {
+
+                        x_curr = item.doc.x;
+                        y_curr = item.doc.y;
+                        o_mrk_graph.clear();
+                        o_mrk_graph.beginFill(POINT_COLOR, f_alpha);
+                        o_mrk_graph.drawCircle(x_curr, y_curr, item.doc.size);
+                        o_mrk_graph.endFill();
+                    } else {
+                        o_mrk_others_graph.beginFill(POINT_COLOR, f_alpha);
+                        o_mrk_others_graph.drawCircle(item.doc.x, item.doc.y, item.doc.size);
+                        o_mrk_others_graph.endFill();
+                    }
+                    list_result.push(item);
+                }
+                o_view.list_image_mrk = list_result;
+
+                update_screen();
+                // console.log("o", res);
+            }).catch(function (res) { console.log("x", res); });
+        }
+
+        // -------------------------------------------------------------------
+        function evt_window_resize() {
+            let fW = SCREEN_W * 1.0;
+            let fH = SCREEN_H * 1.0;
+            let fScale = 1.0;
+
+            const fAspectSrc = fW / fH;
+            const fAspectDst = window.innerWidth / window.innerHeight;
+
+            if (fAspectDst > fAspectSrc) {
+                if (window.innerHeight < SCREEN_H) {
+                    fScale = window.innerHeight / (SCREEN_H * 1.0);
+                    fW = fW * fScale;
+                    fH = window.innerHeight;
+                }
+            } else {
+                if (window.innerWidth < SCREEN_W) {
+                    fScale = window.innerWidth / (SCREEN_W * 1.0);
+                    fW = window.innerWidth;
+                    fH = fH * fScale;
+                }
+            }
+
+            f_scale = fScale;
+            o_renderer.resize(fW, fH);
+
+            window.scrollTo(0, 0);
+        }
+
+        window.onresize = function () {
+            evt_window_resize();
+        }
+
+        function update_screen() {
+
+            o_layer_new.visible = (o_view.display_view == E_VIEW_NEW);
+            o_layer_ref.visible = (o_view.display_view == E_VIEW_MRK);
+            o_layer_mrk.visible = (o_view.display_view == E_VIEW_MRK);
+
+            o_renderer.clear();
+            o_renderer.render(o_layer_new);
+            o_renderer.render(o_layer_ref);
+            o_renderer.render(o_layer_mrk);
+        }
+
+        function sideber(b_show) {
+            const show = b_show ? "show" : "hide"
+            $(".ui.sidebar")
+                .sidebar("setting", "transition", "push")
+                .sidebar(show)
+                ;
+        }
+
+        function update_layer(o_layer, img) {
+            const tex = PIXI.Texture.from(img);
+            const spr = new PIXI.Sprite(tex);
+
+            const f_scale_w = SCREEN_W / tex.orig.width;
+            const f_scale_h = SCREEN_H / tex.orig.height;
+            const f_scale = (f_scale_w > f_scale_h) ? f_scale_h : f_scale_w;
+
+            spr.anchor.set(0.5);
+            spr.setTransform(SCREEN_W / 2, SCREEN_H / 2, f_scale, f_scale);
+
+            o_layer.removeChildren();
+            o_layer.addChild(spr);
+        }
+
+        function load_image(data) {
+            const o_reader = new FileReader();
+
+            o_reader.onload = function (f) {
+                const img = new Image();
+                img.src = f.target.result;
+                img.onload = function () {
+                    update_layer(o_layer_new, img);
+                    update_screen();
+                    o_image_new = img;
+                }
+            }
+
+            o_reader.readAsDataURL(data);
+        }
+
+        function get_url_param() {
+            let list_result = {};
+            let list_param = window.location.href.slice(window.location.href.indexOf("?") + 1).split("&");
+
+            for (let n = 0; n < list_param.length; n++) {
+                let listData = list_param[n].split("=");
+
+                list_result[listData[0]] = listData[1];
+            }
+
+            return list_result;
+        }
+
+        // -------------------------------------------------------------------
+        window.onload = function () {
+            const dict_param = get_url_param();
+
+            param_i = dict_param.i != null ? dict_param.i.replace("#", "") : dict_param.i;
+
+            o_renderer = new PIXI.autoDetectRenderer(
+                { width: SCREEN_W, height: SCREEN_H, antialias: true, backgroundColor: FRAME_COLOR, clearBeforeRender: false });
+
+            interaction = o_renderer.plugins.interaction;
+
+            o_layer_new = new PIXI.Container();
+            o_layer_ref = new PIXI.Container();
+            o_layer_mrk = new PIXI.Container();
+            o_mrk_graph = new PIXI.Graphics();
+            o_mrk_graph.interactive = false;
+            o_mrk_others_graph = new PIXI.Graphics();
+            o_mrk_others_graph.interactive = false;
+            o_layer_mrk.addChild(o_mrk_graph);
+            o_layer_mrk.addChild(o_mrk_others_graph);
+
+            interaction.on("pointerdown", function (o_evt) {
+                if (o_view.display_view == E_VIEW_MRK) {
+                    x_curr = o_evt.data.global.x / f_scale;
+                    y_curr = o_evt.data.global.y / f_scale;
+
+                    o_mrk_graph.clear();
+                    o_mrk_graph.beginFill(POINT_COLOR, 0.5);
+                    o_mrk_graph.drawCircle(x_curr, y_curr, MRK_SIZE);
+                    o_mrk_graph.endFill();
+
+                    update_screen();
+
+                    o_view.b_mrk = true;
+                }
+            });
+
+            new Vue({
+                el: "#id-sidemenu",
+                data: {
+                    test: ""
+                },
+                methods: {
+                    click_item_lst: function (o_evt) {
+                        sideber(false);
+                        o_view.display_view = E_VIEW_LST;
+
+                        api_image_ref_get_list();
+                    },
+                    click_item_new: function (o_evt) {
+                        sideber(false);
+                        o_view.display_view = E_VIEW_NEW;
+                        o_view.title = "";
+                        o_image_new = null;
+
+                        $("#id_btn_image_ref").val(null);
+                        o_layer_new.removeChildren();
+                        update_screen();
+                    },
+                    click_item_off: function (o_evt) {
+                        sideber(false);
+                    }
+                }
+            });
+
+            o_view = new Vue({
+                el: "#id-view",
+                data: {
+                    title: "",
+                    tw_id: "",
+                    tw_username: "",
+                    default_profile_image: true,
+                    profile_image_url_https: "",
+
+                    b_mrk: false,
+                    display_view: E_VIEW_MAN,
+                    list_image_ref: [],
+                    list_image_mrk: []
+                },
+                methods: {
+                    open_sidemenu: function (o_evt) {
+                        sideber(true);
+                    },
+                    click_manual: function (o_evt) { this.display_view = E_VIEW_MAN; },
+                    click_auth: function (o_evt) { },
+                    click_mrk: function (o_evt) {
+                        let dict_param = { "id_imref": param_i, "x": x_curr, "y": y_curr, "size": MRK_SIZE }
+                        api_image_mrk_new(dict_param);
+                        //api_image_mrk_get_list(param_i);
+                    },
+                    click_del: function (o_evt, id_image_ref) {
+                        api_image_ref_del(id_image_ref);
+                    },
+                    click_retake: function (o_evt) {
+                        api_image_mrk_del(param_i);
+                        o_mrk_graph.clear();
+                        this.b_mrk = false;
+                        update_screen();
+                    },
+                    click_submit: function (o_evt) {
+
+                        if (o_image_new != null) {
+                            let dict_param = { "title": o_view.title, "image_ref": o_image_new["src"] };
+
+                            api_image_ref_new(dict_param);
+                        }
+                    },
+
+                    change_image_ref: function (o_evt) {
+                        o_evt.preventDefault();
+
+                        if (o_evt.target.files.length == 1) {
+                            load_image(o_evt.target.files[0]);
+                        }
+                    }
+                }
+            });
+
+            document.getElementById("main_frame").appendChild(o_renderer.view);
+            update_screen();
+
+            if (param_i == null) {
+
+            } else {
+                api_image_ref_get(param_i);
+                api_image_mrk_get_list(param_i);
+                o_view.display_view = E_VIEW_MRK;
+            }
+        }
+    </script>
+</body>
+
+</html>
