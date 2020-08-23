@@ -23,7 +23,6 @@ import iinekoko_db_session
 # ------------------------------------------------------------------- param(s)
 CONFIG_PATH = "./config.ini"
 COOKIE_NAME = "iinekoko_session"
-TOPPAGE_URL = "http://127.0.0.1:8000/"
 MAX_IMREF = 10
 MAX_IMMRK = 100
 
@@ -106,7 +105,7 @@ async def index(o_req: Request, iinekoko_session=Cookie(None)):
 
 async def login(o_req: Request):
     twitter = o_auth.create_client("twitter")
-    redirect_uri = TOPPAGE_URL + "auth"
+    redirect_uri = o_conf("SITE", "toppage_url") + "auth"
 
     return await twitter.authorize_redirect(o_req, redirect_uri)
 
@@ -118,7 +117,7 @@ async def login_auth(o_req: Request, iinekoko_session=Cookie(None)):
 
     twitter = o_auth.create_client("twitter")
 
-    o_res = RedirectResponse(TOPPAGE_URL)
+    o_res = RedirectResponse(o_conf("SITE", "toppage_url"))
 
     try:
         token = await twitter.authorize_access_token(o_req)
@@ -153,7 +152,7 @@ async def logout(o_req: Request, iinekoko_session=Cookie(None)):
 
     o_doc_sess.delete()
 
-    o_res = RedirectResponse(TOPPAGE_URL)
+    o_res = RedirectResponse(o_conf("SITE", "toppage_url"))
     o_res.delete_cookie(COOKIE_NAME)
 
     return o_res
