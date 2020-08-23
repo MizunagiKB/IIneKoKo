@@ -171,7 +171,7 @@
                                 </td>
                                 <td>
 
-                                    {% raw %}{{ r.value.created_at }}{% endraw %}
+                                    {% raw %}{{ moment(r.value.created_at).format("YYYY-MM-DD HH:mm:ss") }}{% endraw %}
                                 </td>
                                 <td>
                                     <button v-on:click="click_del($event, r.id)" class="ui icon button"><i
@@ -257,7 +257,9 @@
                         <tbody v-for="r in list_image_mrk">
                             <tr>
                                 <td>{% raw %}{{ r.doc.tw_username }}{% endraw %}</td>
-                                <td>{% raw %}{{ r.doc.created_at }}{% endraw %}</td>
+                                <td>
+                                    {% raw %}{{ moment(r.doc.created_at).format("YYYY-MM-DD HH:mm:ss") }}{% endraw %}
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -275,6 +277,9 @@
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"
+        integrity="sha512-rmZcZsyhe0/MAjquhTgiUcb4d9knaFc7b5xAfju483gbEXTkeJRUMIPk6s3ySZMYUHEcjKbjLjyddGWMrNEvZg=="
+        crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"
         integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg=="
         crossorigin="anonymous"></script>
@@ -451,7 +456,7 @@
                 o_view.list_image_mrk = list_result;
 
                 update_screen();
-                // console.log("o", res);
+                console.log("o - api_image_mrk_get_list", res);
             }).catch(function (res) { console.log("x", res); });
         }
 
@@ -566,7 +571,6 @@
 
             param_i = dict_param.i != null ? dict_param.i.replace("#", "") : dict_param.i;
 
-
             o_renderer = new PIXI.autoDetectRenderer(
                 {
                     width: SCREEN_W, height: SCREEN_H,
@@ -606,7 +610,6 @@
             new Vue({
                 el: "#id-sidemenu",
                 data: {
-                    test: ""
                 },
                 methods: {
                     click_item_lst: function (o_evt) {
