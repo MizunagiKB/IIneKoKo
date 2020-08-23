@@ -105,7 +105,7 @@ async def index(o_req: Request, iinekoko_session=Cookie(None)):
 
 async def login(o_req: Request):
     twitter = o_auth.create_client("twitter")
-    redirect_uri = o_conf("SITE", "toppage_url") + "auth"
+    redirect_uri = o_conf.get("SITE", "toppage_url") + "auth"
 
     return await twitter.authorize_redirect(o_req, redirect_uri)
 
@@ -117,7 +117,7 @@ async def login_auth(o_req: Request, iinekoko_session=Cookie(None)):
 
     twitter = o_auth.create_client("twitter")
 
-    o_res = RedirectResponse(o_conf("SITE", "toppage_url"))
+    o_res = RedirectResponse(o_conf.get("SITE", "toppage_url"))
 
     try:
         token = await twitter.authorize_access_token(o_req)
