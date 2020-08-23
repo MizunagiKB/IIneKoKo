@@ -306,11 +306,12 @@ async def image_mrk_get(id_imref: str, iinekoko_session=Cookie(None)):
 
 
 async def image_mrk_get_list(id_imref: str, iinekoko_session=Cookie(None)):
+    o_db, o_doc_sess = session_load(iinekoko_session)
+
     list_result = iinekoko_db_immrk.get_list(o_db, id_imref, include_docs=True)
     if len(list_result) == MAX_IMMRK:
         return list_result
     else:
-        o_doc_sess = session_load(iinekoko_session)
         if o_doc_sess is None:
             return None
         if is_signin(o_doc_sess) != 1:
