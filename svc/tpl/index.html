@@ -78,7 +78,7 @@
                     <h2>いいねのしかた</h2>
                     <p>画像をタップすると、半透明の赤い丸が画像の上に表示されます。</p>
                     <p>赤い丸はタップする度に変わりますので、気に入った場所を決めて下さい。</p>
-                    <p>場所が決まったら画像の下にある「ここにきめた」というボタンをクリックします。</p>
+                    <p>場所が決まったら画像の下にある「ここにきめた！」というボタンをクリックします。</p>
                     <p>「やりなおし」というボタンを押すことで、一旦決めた場所をキャンセルする事が出来ます。</p>
                     <div class="ui message">
                         <p>いいねが100人分に達した場合は、それ以上いいねが出来なくなります。</p>
@@ -179,7 +179,7 @@
                             <button v-on:click="click_mrk" class="ui labeled icon primary button"
                                 v-bind:class="{disabled: !b_mrk}">
                                 <i class="heart icon"></i>
-                                {% raw %}{{ b_mrk ? "ここにきめた" : "いいなと思ったところをタップ" }}{% endraw %}
+                                {% raw %}{{ b_mrk ? "ここにきめた！" : "いいなと思ったところをタップ" }}{% endraw %}
                             </button>
                             <div class="or"></div>
                             <button v-on:click="click_retake" class="ui right labeled icon button">
