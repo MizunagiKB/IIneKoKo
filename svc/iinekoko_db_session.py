@@ -41,7 +41,6 @@ def get(o_db: iinekoko_db.CDatabase, document_id: str):
     try:
         if o_db.o_conn is not None:
             o_doc = o_db.o_conn[DATABASE_NAME][document_id]
-            print(o_doc)
             if o_doc.exists() is not True:
                 o_doc = None
         else:

@@ -567,7 +567,11 @@
             param_i = dict_param.i != null ? dict_param.i.replace("#", "") : dict_param.i;
 
             o_renderer = new PIXI.autoDetectRenderer(
-                { width: SCREEN_W, height: SCREEN_H, antialias: true, backgroundColor: FRAME_COLOR, clearBeforeRender: false });
+                {
+                    width: SCREEN_W, height: SCREEN_H,
+                    antialias: true, backgroundColor: FRAME_COLOR, clearBeforeRender: false,
+                    forceCanvas: true
+                });
 
             interaction = o_renderer.plugins.interaction;
 
