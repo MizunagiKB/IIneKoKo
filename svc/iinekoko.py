@@ -28,7 +28,6 @@ MAX_IMMRK = 100
 
 o_conf = configparser.ConfigParser()
 o_conf.read(CONFIG_PATH)
-o_db = iinekoko_db.CDatabase(o_conf)
 o_log = logging.getLogger("iinekoko")
 o_log.setLevel(level=logging.INFO)
 
@@ -51,6 +50,8 @@ o_tpl = Jinja2Templates(directory="./tpl")
 
 def session_load(session_key: str):
 
+    o_db = iinekoko_db.CDatabase(o_conf)
+
     o_doc_sess = iinekoko_db_session.get(o_db, session_key)
     if o_doc_sess is None:
         o_sess = iinekoko_db_session.CModelSession(tw_id="",
@@ -59,7 +60,7 @@ def session_load(session_key: str):
                                                    default_profile_image=False)
         o_doc_sess = iinekoko_db_session.create(o_db, o_sess)
 
-    return o_doc_sess
+    return o_db, o_doc_sess
 
 
 def session_save(o_doc_sess, o_res):
@@ -85,7 +86,7 @@ def is_signin(o_doc_sess):
 
 
 async def index(o_req: Request, iinekoko_session=Cookie(None)):
-    o_doc_sess = session_load(iinekoko_session)
+    o_db, o_doc_sess = session_load(iinekoko_session)
     if o_doc_sess is None:
         return None
 
@@ -103,7 +104,7 @@ async def index(o_req: Request, iinekoko_session=Cookie(None)):
 
 
 async def login(o_req: Request, iinekoko_session=Cookie(None)):
-    o_doc_sess = session_load(iinekoko_session)
+    o_db, o_doc_sess = session_load(iinekoko_session)
     if o_doc_sess is None:
         return None
 
@@ -118,7 +119,7 @@ async def login(o_req: Request, iinekoko_session=Cookie(None)):
 
 
 async def login_auth(o_req: Request, iinekoko_session=Cookie(None)):
-    o_doc_sess = session_load(iinekoko_session)
+    o_db, o_doc_sess = session_load(iinekoko_session)
     if o_doc_sess is None:
         return None
 
@@ -161,7 +162,7 @@ async def login_auth(o_req: Request, iinekoko_session=Cookie(None)):
 
 
 async def logout(o_req: Request, iinekoko_session=Cookie(None)):
-    o_doc_sess = session_load(iinekoko_session)
+    o_db, o_doc_sess = session_load(iinekoko_session)
     if o_doc_sess is None:
         return None
 
@@ -180,7 +181,7 @@ async def logout(o_req: Request, iinekoko_session=Cookie(None)):
 
 async def image_ref_new(o_model: iinekoko_db_imref.CModelIMRef,
                         iinekoko_session=Cookie(None)):
-    o_doc_sess = session_load(iinekoko_session)
+    o_db, o_doc_sess = session_load(iinekoko_session)
     if o_doc_sess is None:
         return None
     if is_signin(o_doc_sess) != 1:
@@ -202,7 +203,7 @@ async def image_ref_new(o_model: iinekoko_db_imref.CModelIMRef,
 
 
 async def image_ref_del(document_id: str, iinekoko_session=Cookie(None)):
-    o_doc_sess = session_load(iinekoko_session)
+    o_db, o_doc_sess = session_load(iinekoko_session)
     if o_doc_sess is None:
         return None
     if is_signin(o_doc_sess) != 1:
@@ -217,7 +218,7 @@ async def image_ref_del(document_id: str, iinekoko_session=Cookie(None)):
 
 
 async def image_ref_get(document_id: str, iinekoko_session=Cookie(None)):
-    o_doc_sess = session_load(iinekoko_session)
+    o_db, o_doc_sess = session_load(iinekoko_session)
     if o_doc_sess is None:
         return None
 
@@ -229,7 +230,7 @@ async def image_ref_get(document_id: str, iinekoko_session=Cookie(None)):
 
 
 async def image_ref_get_list(o_req: Request, iinekoko_session=Cookie(None)):
-    o_doc_sess = session_load(iinekoko_session)
+    o_db, o_doc_sess = session_load(iinekoko_session)
     if o_doc_sess is None:
         return None
     if is_signin(o_doc_sess) != 1:
@@ -246,7 +247,7 @@ async def image_ref_get_list(o_req: Request, iinekoko_session=Cookie(None)):
 
 async def image_mrk_new(o_model: iinekoko_db_immrk.CModelIMMrk,
                         iinekoko_session=Cookie(None)):
-    o_doc_sess = session_load(iinekoko_session)
+    o_db, o_doc_sess = session_load(iinekoko_session)
     if o_doc_sess is None:
         return None
     if is_signin(o_doc_sess) != 1:
@@ -275,7 +276,7 @@ async def image_mrk_new(o_model: iinekoko_db_immrk.CModelIMMrk,
 
 
 async def image_mrk_del(id_imref: str, iinekoko_session=Cookie(None)):
-    o_doc_sess = session_load(iinekoko_session)
+    o_db, o_doc_sess = session_load(iinekoko_session)
     if o_doc_sess is None:
         return None
     if is_signin(o_doc_sess) != 1:
@@ -292,7 +293,7 @@ async def image_mrk_del(id_imref: str, iinekoko_session=Cookie(None)):
 
 
 async def image_mrk_get(id_imref: str, iinekoko_session=Cookie(None)):
-    o_doc_sess = session_load(iinekoko_session)
+    o_db, o_doc_sess = session_load(iinekoko_session)
     if o_doc_sess is None:
         return None
     if is_signin(o_doc_sess) != 1:
