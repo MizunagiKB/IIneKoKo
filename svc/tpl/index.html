@@ -441,6 +441,7 @@
             o_renderer.resize(fW, fH);
 
             window.scrollTo(0, 0);
+            update_screen();
         }
 
         window.onresize = function () {
@@ -630,6 +631,7 @@
             });
 
             document.getElementById("main_frame").appendChild(o_renderer.view);
+            evt_window_resize();
             update_screen();
 
             if (param_i == null) {
