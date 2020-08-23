@@ -317,6 +317,11 @@ async def image_mrk_get_list(id_imref: str, iinekoko_session=Cookie(None)):
             res.status_code = 401
             return res
 
+        o_doc_imref = iinekoko_db_imref.get(o_db, id_imref)
+        if o_doc_imref is not None:
+            if o_doc_imref["tw_id"] == o_doc_sess["tw_id"]:
+                return list_result
+
         o_doc_immrk = iinekoko_db_immrk.get(o_db, o_doc_sess, id_imref)
         if o_doc_immrk is not None:
             return list_result
