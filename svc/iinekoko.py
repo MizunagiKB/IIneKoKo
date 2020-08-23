@@ -107,6 +107,8 @@ async def login(o_req: Request):
     twitter = o_auth.create_client("twitter")
     redirect_uri = o_conf.get("SITE", "toppage_url") + "auth"
 
+    print(redirect_uri)
+
     return await twitter.authorize_redirect(o_req, redirect_uri)
 
 
@@ -152,7 +154,7 @@ async def logout(o_req: Request, iinekoko_session=Cookie(None)):
 
     o_doc_sess.delete()
 
-    o_res = RedirectResponse(o_conf("SITE", "toppage_url"))
+    o_res = RedirectResponse(o_conf.get("SITE", "toppage_url"))
     o_res.delete_cookie(COOKIE_NAME)
 
     return o_res
