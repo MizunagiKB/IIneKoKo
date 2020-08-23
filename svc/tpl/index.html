@@ -424,7 +424,7 @@
         function api_image_mrk_get_list(document_id) {
             axios.post("./api/image_mrk_get_list/" + document_id, {}).then(function (res) {
                 let list_result = [];
-                let f_alpha = res.data.length > 0 ? 0.5 / res.data.length : 0.5;
+                let f_alpha = res.data.length > 0 ? 0.5 - (res.data.length / 100) : 0.5;
 
                 o_view.b_polls = false;
 
@@ -437,7 +437,7 @@
                         x_curr = item.doc.x;
                         y_curr = item.doc.y;
                         o_mrk_graph.clear();
-                        o_mrk_graph.beginFill(POINT_COLOR, f_alpha);
+                        o_mrk_graph.beginFill(POINT_COLOR, 0.5);
                         o_mrk_graph.drawCircle(x_curr, y_curr, item.doc.size);
                         o_mrk_graph.endFill();
                         o_view.b_polls = true;
@@ -667,7 +667,7 @@
                         this.b_mrk = false;
                         */
                         o_mrk_graph.visible = true;
-                        o_mrk_others_graph.visble = false;
+                        o_mrk_others_graph.visible = false;
                         update_screen();
                     },
                     click_all: function (o_evt) {
@@ -677,7 +677,7 @@
                         this.b_mrk = false;
                         */
                         o_mrk_graph.visible = true;
-                        o_mrk_others_graph.visble = true;
+                        o_mrk_others_graph.visible = true;
                         update_screen();
                     },
                     click_submit: function (o_evt) {
