@@ -439,13 +439,19 @@
 
             f_scale = fScale;
             o_renderer.resize(fW, fH);
+            o_layer_new.scale.x = f_scale;
+            o_layer_new.scale.y = f_scale;
+            o_layer_ref.scale.x = f_scale;
+            o_layer_ref.scale.y = f_scale;
+            o_layer_mrk.scale.x = f_scale;
+            o_layer_mrk.scale.y = f_scale;
 
             window.scrollTo(0, 0);
-            update_screen();
         }
 
         window.onresize = function () {
             evt_window_resize();
+            update_screen();
         }
 
         function update_screen() {
@@ -477,6 +483,8 @@
             const f_scale = (f_scale_w > f_scale_h) ? f_scale_h : f_scale_w;
 
             spr.anchor.set(0.5);
+
+            console.log(f_scale);
             spr.setTransform(SCREEN_W / 2, SCREEN_H / 2, f_scale, f_scale);
 
             o_layer.removeChildren();
@@ -632,7 +640,6 @@
 
             document.getElementById("main_frame").appendChild(o_renderer.view);
             evt_window_resize();
-            update_screen();
 
             if (param_i == null) {
 
