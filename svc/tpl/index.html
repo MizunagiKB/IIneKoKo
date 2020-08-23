@@ -566,14 +566,13 @@
 
             param_i = dict_param.i != null ? dict_param.i.replace("#", "") : dict_param.i;
 
+
             o_renderer = new PIXI.autoDetectRenderer(
                 {
                     width: SCREEN_W, height: SCREEN_H,
                     antialias: true, backgroundColor: FRAME_COLOR, clearBeforeRender: false,
                     forceCanvas: true
                 });
-
-            interaction = o_renderer.plugins.interaction;
 
             o_layer_new = new PIXI.Container();
             o_layer_ref = new PIXI.Container();
@@ -585,6 +584,7 @@
             o_layer_mrk.addChild(o_mrk_graph);
             o_layer_mrk.addChild(o_mrk_others_graph);
 
+            interaction = o_renderer.plugins.interaction;
             interaction.on("pointerdown", function (o_evt) {
                 if (o_view.display_view == E_VIEW_MRK) {
                     if (o_view.b_polls != true) {
