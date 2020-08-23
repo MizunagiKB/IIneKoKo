@@ -85,7 +85,6 @@ def is_signin(o_doc_sess):
 
 
 async def index(o_req: Request, iinekoko_session=Cookie(None)):
-
     o_doc_sess = session_load(iinekoko_session)
     if o_doc_sess is None:
         return None
@@ -103,11 +102,17 @@ async def index(o_req: Request, iinekoko_session=Cookie(None)):
     return o_res
 
 
-async def login(o_req: Request):
+async def login(o_req: Request, iinekoko_session=Cookie(None)):
+    o_doc_sess = session_load(iinekoko_session)
+    if o_doc_sess is None:
+        return None
+
+    if "referer" in o_req.headers:
+        o_doc_sess["referer"] = o_req.headers["referer"]
+        o_doc_sess.save()
+
     twitter = o_auth.create_client("twitter")
     redirect_uri = o_conf.get("SITE", "toppage_url") + "auth"
-
-    print(redirect_uri)
 
     return await twitter.authorize_redirect(o_req, redirect_uri)
 
@@ -119,7 +124,15 @@ async def login_auth(o_req: Request, iinekoko_session=Cookie(None)):
 
     twitter = o_auth.create_client("twitter")
 
-    o_res = RedirectResponse(o_conf.get("SITE", "toppage_url"))
+    if "referer" in o_doc_sess:
+        referer = o_doc_sess["referer"]
+    else:
+        referer = o_conf.get("SITE", "toppage_url")
+
+    o_doc_sess["referer"] = ""
+    o_doc_sess.save()
+
+    o_res = RedirectResponse(referer)
 
     try:
         token = await twitter.authorize_access_token(o_req)
@@ -152,9 +165,14 @@ async def logout(o_req: Request, iinekoko_session=Cookie(None)):
     if o_doc_sess is None:
         return None
 
+    if "referer" in o_req.headers:
+        referer = o_req.headers["referer"]
+    else:
+        referer = o_conf.get("SITE", "toppage_url")
+
     o_doc_sess.delete()
 
-    o_res = RedirectResponse(o_conf.get("SITE", "toppage_url"))
+    o_res = RedirectResponse(referer)
     o_res.delete_cookie(COOKIE_NAME)
 
     return o_res
@@ -246,9 +264,10 @@ async def image_mrk_new(o_model: iinekoko_db_immrk.CModelIMMrk,
     if len(list_doc_immrk) < MAX_IMMRK:
         o_doc_immrk = iinekoko_db_immrk.get(o_db, o_doc_sess, o_model.id_imref)
         if o_doc_immrk is not None:
-            o_doc_immrk["x"] = o_model.x
-            o_doc_immrk["y"] = o_model.y
-            o_doc_immrk.save()
+            # o_doc_immrk["x"] = o_model.x
+            # o_doc_immrk["y"] = o_model.y
+            # o_doc_immrk.save()
+            pass
         else:
             iinekoko_db_immrk.create(o_db, o_doc_sess, o_model)
 
@@ -285,9 +304,24 @@ async def image_mrk_get(id_imref: str, iinekoko_session=Cookie(None)):
     return {"doc": o_doc_immrk}
 
 
-async def image_mrk_get_list(id_imref: str):
+async def image_mrk_get_list(id_imref: str, iinekoko_session=Cookie(None)):
+    list_result = iinekoko_db_immrk.get_list(o_db, id_imref, include_docs=True)
+    if len(list_result) == MAX_IMMRK:
+        return list_result
+    else:
+        o_doc_sess = session_load(iinekoko_session)
+        if o_doc_sess is None:
+            return None
+        if is_signin(o_doc_sess) != 1:
+            res = JSONResponse()
+            res.status_code = 401
+            return res
 
-    return iinekoko_db_immrk.get_list(o_db, id_imref, include_docs=True)
+        o_doc_immrk = iinekoko_db_immrk.get(o_db, o_doc_sess, id_imref)
+        if o_doc_immrk is not None:
+            return list_result
+
+    return []
 
 
 #

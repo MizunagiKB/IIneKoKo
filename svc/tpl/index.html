@@ -39,6 +39,26 @@
 
 <body>
 
+    <div id="id_dlg_unauthorized" class="ui basic modal">
+        <div class="ui icon header">
+            <i class="exclamation circle icon"></i>
+            認証されていません
+        </div>
+        <div class="content">
+            <p>IIneKoKoを利用するにはTwitter認証が必要です。</p>
+        </div>
+        <div class="actions">
+            <div class="ui red basic cancel inverted button">
+                <i class="remove icon"></i>
+                戻る
+            </div>
+            <a href="./signin" class="ui green ok inverted button">
+                <i class="twitter icon"></i>
+                認証をする
+            </a>
+        </div>
+    </div>
+
     <div id="id-sidemenu" class="ui top sidebar inverted segment">
         <div class="ui three item inverted huge menu">
             <a v-on:click="click_item_lst" class="item"><i class="folder alternate outline icon"></i>
@@ -56,7 +76,7 @@
                 <a v-on:click="open_sidemenu" class="item" href="#">
                     <i class="bars large icon"></i>
                 </a>
-                <a v-bind:href="SIGNIN_STATUS == 1 ? './signout' : 'signin'" class="item">
+                <a v-bind:href="SIGNIN_STATUS == 1 ? './signout' : './signin'" class="item">
                     <img class="ui avatar image" src="{{ o_doc_sess.profile_image_url_https }}"
                         v-if="SIGNIN_STATUS == 1" />
                     {% raw %}{{ SIGNIN_STATUS == 1 ? "サインアウト" : "サインイン" }}{% endraw %}
@@ -65,7 +85,7 @@
             </div>
 
             <div class="ui warning message">
-                <p>現在動作試験中の為、正常に動作しない可能性があります。</p>
+                <p>現在動作試験中です。<br />正常に動作しない可能性があります。</p>
             </div>
 
             <div v-show="display_view == E_VIEW_MAN">
@@ -83,7 +103,8 @@
                     <p>画像をタップすると、半透明の赤い丸が画像の上に表示されます。</p>
                     <p>赤い丸はタップする度に変わりますので、気に入った場所を決めて下さい。</p>
                     <p>場所が決まったら画像の下にある「ここにきめた！」というボタンをクリックします。</p>
-                    <p>「やりなおし」というボタンを押すことで、一旦決めた場所をキャンセルする事が出来ます。</p>
+                    <p>「自分のみ表示」というボタンを押すことで、他の人の赤い丸を一時的に消すことが出来ます。</p>
+                    <p>元に戻すには「全員を表示」というボタンを押します。</p>
                     <div class="ui message">
                         <p>いいねが100人分に達した場合は、それ以上いいねが出来なくなります。</p>
                     </div>
@@ -135,7 +156,7 @@
                             <tr>
                                 <th>タイトル</th>
                                 <th>日付</th>
-                                <th>アイコン</th>
+                                <th>削除</th>
                             </tr>
                         </thead>
                         <tbody v-for="r in list_image_ref">
@@ -179,16 +200,22 @@
                     </div>
 
                     <div class="row" v-if="display_view == E_VIEW_MRK">
-                        <div class="ui buttons">
+                        <div class="ui buttons" v-if="o_view.b_polls == true">
+                            <button v-on:click="click_own" class="ui left labeled icon button">
+                                自分のみ表示
+                                <i class="user icon"></i>
+                            </button>
+                            <div class="or"></div>
+                            <button v-on:click="click_all" class="ui right labeled icon button">
+                                全員を表示
+                                <i class="users icon"></i>
+                            </button>
+                        </div>
+                        <div class="ui buttons" v-else="">
                             <button v-on:click="click_mrk" class="ui labeled icon primary button"
                                 v-bind:class="{disabled: !b_mrk}">
                                 <i class="heart icon"></i>
                                 {% raw %}{{ b_mrk ? "ここにきめた！" : "いいなと思ったところをタップ" }}{% endraw %}
-                            </button>
-                            <div class="or"></div>
-                            <button v-on:click="click_retake" class="ui right labeled icon button">
-                                やりなおし
-                                <i class="undo icon"></i>
                             </button>
                         </div>
                     </div>
@@ -224,14 +251,12 @@
                             <tr>
                                 <th>名前</th>
                                 <th>日付</th>
-                                <th>アイコン</th>
                             </tr>
                         </thead>
                         <tbody v-for="r in list_image_mrk">
                             <tr>
                                 <td>{% raw %}{{ r.doc.tw_username }}{% endraw %}</td>
                                 <td>{% raw %}{{ r.doc.created_at }}{% endraw %}</td>
-                                <td><i class="heart icon"></i></td>
                             </tr>
                         </tbody>
                     </table>
@@ -323,7 +348,11 @@
 
                 update_screen();
                 // console.log("o", res);
-            }).catch(function (res) { console.log("x", res); });
+            }).catch(function (res) {
+                $("#id_dlg_unauthorized").modal("show");
+                // console.log("x", res);
+            }
+            );
         }
 
         function api_image_ref_del(document_id) {
@@ -372,7 +401,10 @@
             axios.post("./api/image_mrk_new", dict_param).then(function (res) {
                 api_image_mrk_get_list(param_i);
                 // console.log("o - image_mrk_new", res);
-            }).catch(function (res) { console.log("x", res); });
+            }).catch(function (res) {
+                $("#id_dlg_unauthorized").modal("show");
+                // console.log("x", res);
+            });
         }
 
         function api_image_mrk_del(document_id) {
@@ -382,10 +414,18 @@
             }).catch(function (res) { console.log("x", res); });
         }
 
+        function api_image_mrk_get(document_id) {
+            axios.post("./api/image_mrk_get/" + document_id, {}).then(function (res) {
+                // console.log("o", res);
+            }).catch(function (res) { console.log("x", res); });
+        }
+
         function api_image_mrk_get_list(document_id) {
             axios.post("./api/image_mrk_get_list/" + document_id, {}).then(function (res) {
                 let list_result = [];
                 let f_alpha = res.data.length > 0 ? 0.5 / res.data.length : 0.5;
+
+                o_view.b_polls = false;
 
                 o_mrk_graph.clear();
                 o_mrk_others_graph.clear();
@@ -393,13 +433,13 @@
                     const item = res.data[n];
 
                     if (item.doc.tw_id == "{{ o_doc_sess.tw_id }}") {
-
                         x_curr = item.doc.x;
                         y_curr = item.doc.y;
                         o_mrk_graph.clear();
                         o_mrk_graph.beginFill(POINT_COLOR, f_alpha);
                         o_mrk_graph.drawCircle(x_curr, y_curr, item.doc.size);
                         o_mrk_graph.endFill();
+                        o_view.b_polls = true;
                     } else {
                         o_mrk_others_graph.beginFill(POINT_COLOR, f_alpha);
                         o_mrk_others_graph.drawCircle(item.doc.x, item.doc.y, item.doc.size);
@@ -484,7 +524,6 @@
 
             spr.anchor.set(0.5);
 
-            console.log(f_scale);
             spr.setTransform(SCREEN_W / 2, SCREEN_H / 2, f_scale, f_scale);
 
             o_layer.removeChildren();
@@ -543,17 +582,19 @@
 
             interaction.on("pointerdown", function (o_evt) {
                 if (o_view.display_view == E_VIEW_MRK) {
-                    x_curr = o_evt.data.global.x / f_scale;
-                    y_curr = o_evt.data.global.y / f_scale;
+                    if (o_view.b_polls != true) {
+                        x_curr = o_evt.data.global.x / f_scale;
+                        y_curr = o_evt.data.global.y / f_scale;
 
-                    o_mrk_graph.clear();
-                    o_mrk_graph.beginFill(POINT_COLOR, 0.5);
-                    o_mrk_graph.drawCircle(x_curr, y_curr, MRK_SIZE);
-                    o_mrk_graph.endFill();
+                        o_mrk_graph.clear();
+                        o_mrk_graph.beginFill(POINT_COLOR, 0.5);
+                        o_mrk_graph.drawCircle(x_curr, y_curr, MRK_SIZE);
+                        o_mrk_graph.endFill();
 
-                    update_screen();
+                        update_screen();
 
-                    o_view.b_mrk = true;
+                        o_view.b_mrk = true;
+                    }
                 }
             });
 
@@ -571,13 +612,17 @@
                     },
                     click_item_new: function (o_evt) {
                         sideber(false);
-                        o_view.display_view = E_VIEW_NEW;
-                        o_view.title = "";
-                        o_image_new = null;
+                        if (SIGNIN_STATUS == 1) {
+                            o_view.display_view = E_VIEW_NEW;
+                            o_view.title = "";
+                            o_image_new = null;
 
-                        $("#id_btn_image_ref").val(null);
-                        o_layer_new.removeChildren();
-                        update_screen();
+                            $("#id_btn_image_ref").val(null);
+                            o_layer_new.removeChildren();
+                            update_screen();
+                        } else {
+                            $("#id_dlg_unauthorized").modal("show");
+                        }
                     },
                     click_item_off: function (o_evt) {
                         sideber(false);
@@ -595,6 +640,7 @@
                     profile_image_url_https: "",
 
                     b_mrk: false,
+                    b_polls: false,
                     display_view: E_VIEW_MAN,
                     list_image_ref: [],
                     list_image_mrk: []
@@ -613,10 +659,24 @@
                     click_del: function (o_evt, id_image_ref) {
                         api_image_ref_del(id_image_ref);
                     },
-                    click_retake: function (o_evt) {
+                    click_own: function (o_evt) {
+                        /*
                         api_image_mrk_del(param_i);
                         o_mrk_graph.clear();
                         this.b_mrk = false;
+                        */
+                        o_mrk_graph.visible = true;
+                        o_mrk_others_graph.visble = false;
+                        update_screen();
+                    },
+                    click_all: function (o_evt) {
+                        /*
+                        api_image_mrk_del(param_i);
+                        o_mrk_graph.clear();
+                        this.b_mrk = false;
+                        */
+                        o_mrk_graph.visible = true;
+                        o_mrk_others_graph.visble = true;
                         update_screen();
                     },
                     click_submit: function (o_evt) {
@@ -645,6 +705,7 @@
 
             } else {
                 api_image_ref_get(param_i);
+                // api_image_mrk_get(param_i);
                 api_image_mrk_get_list(param_i);
                 o_view.display_view = E_VIEW_MRK;
             }

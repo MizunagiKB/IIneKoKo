@@ -18,6 +18,7 @@ class CModelSession(pydantic.BaseModel):
     tw_username: str
     default_profile_image: bool
     profile_image_url_https: str
+    referer: typing.Optional[str] = ""
     created_at: typing.Optional[datetime.datetime] = datetime.datetime.now(
         pytz.timezone("UTC")).strftime("%Y-%m-%dT%H:%M:%SZ")
     modified_at: typing.Optional[datetime.datetime] = datetime.datetime.now(
