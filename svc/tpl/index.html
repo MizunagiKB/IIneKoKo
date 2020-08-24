@@ -59,7 +59,7 @@
         </div>
     </div>
 
-    <div id="id-sidemenu" class="ui top sidebar inverted segment">
+    <div id="id-sidemenu-T" class="ui inverted top sidebar labeled icon segment">
         <div class="ui three item inverted huge menu">
             <a v-on:click="click_item_lst" class="item"><i class="folder alternate outline icon"></i>
                 つくったもの</a>
@@ -67,9 +67,20 @@
             <a v-on:click="click_item_off" class="item"><i class="times icon"></i>とじる</a>
         </div>
     </div>
+
+    <div id="id-sidemenu-R" class="ui inverted right vertical sidebar labeled icon menu">
+        <span class="item">表示色</span>
+        <a v-on:click="click_color(0xFF0000)" class="item"><i class="red circle icon"></i></a>
+        <a v-on:click="click_color(0x00FF00)" class="item"><i class="green circle icon"></i></a>
+        <a v-on:click="click_color(0x0000FF)" class="item"><i class="blue circle icon"></i></a>
+        <a v-on:click="click_color(0xFFFFFF)" class="item"><i class="white circle icon"></i></a>
+        <a v-on:click="click_color(0x000000)" class="item"><i class="white circle outline icon"></i></a>
+        <a v-on:click="click_item_off" class="item"><i class="times icon"></i>とじる</a>
+    </div>
+
     <div class="pusher">
         <div id="id-view">
-            <div class="ui three item huge menu">
+            <div class="ui three item menu">
                 <a v-on:click="click_manual" class="item">
                     つかいかた
                 </a>
@@ -201,24 +212,27 @@
                     </div>
 
                     <div class="row" v-if="display_view == E_VIEW_MRK">
-                        <div class="ui buttons" v-if="o_view.b_polls == true">
-                            <button v-on:click="click_own" class="ui left labeled icon button">
+                        <div v-if="o_view.b_polls == true">
+                            <button v-on:click="click_own" class="ui labeled icon button">
                                 自分のみ表示
                                 <i class="user icon"></i>
                             </button>
-                            <div class="or"></div>
-                            <button v-on:click="click_all" class="ui right labeled icon button">
+                            <button v-on:click="click_all" class="ui labeled icon button">
                                 全員を表示
                                 <i class="users icon"></i>
                             </button>
                         </div>
-                        <div class="ui buttons" v-else="">
+                        <div v-else="">
                             <button v-on:click="click_mrk" class="ui labeled icon primary button"
                                 v-bind:class="{disabled: !b_mrk}">
                                 <i class="heart icon"></i>
                                 {% raw %}{{ b_mrk ? "ここにきめた！" : "いいなと思ったところをタップ" }}{% endraw %}
                             </button>
                         </div>
+                        <button v-on:click="click_etc" class="ui right labeled icon button">
+                            表示色の設定
+                            <i class="bars icon"></i>
+                        </button>
                     </div>
                     <div class="row" v-else-if="display_view == E_VIEW_NEW">
                         <div class="ui form">
@@ -351,8 +365,6 @@
                 }
 
                 param_i = res.data.doc._id;
-
-                update_screen();
                 // console.log("o", res);
             }).catch(function (res) {
                 $("#id_dlg_unauthorized").modal("show");
@@ -377,7 +389,6 @@
                     //img.src = "http://127.0.0.1:5984/iinekoko_imref/" + document_id + "/basic";
                     img.onload = function () {
                         update_layer(o_layer_ref, img);
-                        update_screen();
                         o_image_ref = img;
                     }
 
@@ -429,33 +440,13 @@
         function api_image_mrk_get_list(document_id) {
             axios.post("./api/image_mrk_get_list/" + document_id, {}).then(function (res) {
                 let list_result = [];
-                let f_alpha = res.data.length > 0 ? 0.5 - (res.data.length / 100) : 0.5;
 
-                o_view.b_polls = false;
-
-                o_mrk_graph.clear();
-                o_mrk_others_graph.clear();
                 for (let n = 0; n < res.data.length; n++) {
                     const item = res.data[n];
-
-                    if (item.doc.tw_id == "{{ o_doc_sess.tw_id }}") {
-                        x_curr = item.doc.x;
-                        y_curr = item.doc.y;
-                        o_mrk_graph.clear();
-                        o_mrk_graph.beginFill(POINT_COLOR, 0.5);
-                        o_mrk_graph.drawCircle(x_curr, y_curr, item.doc.size);
-                        o_mrk_graph.endFill();
-                        o_view.b_polls = true;
-                    } else {
-                        o_mrk_others_graph.beginFill(POINT_COLOR, f_alpha);
-                        o_mrk_others_graph.drawCircle(item.doc.x, item.doc.y, item.doc.size);
-                        o_mrk_others_graph.endFill();
-                    }
                     list_result.push(item);
                 }
                 o_view.list_image_mrk = list_result;
-
-                update_screen();
+                o_view.update_shape();
                 console.log("o - api_image_mrk_get_list", res);
             }).catch(function (res) { console.log("x", res); });
         }
@@ -497,11 +488,9 @@
 
         window.onresize = function () {
             evt_window_resize();
-            update_screen();
         }
 
-        function update_screen() {
-
+        function update_screen(f_dtime) {
             o_layer_new.visible = (o_view.display_view == E_VIEW_NEW);
             o_layer_ref.visible = (o_view.display_view == E_VIEW_MRK);
             o_layer_mrk.visible = (o_view.display_view == E_VIEW_MRK);
@@ -514,8 +503,16 @@
 
         function sideber(b_show) {
             const show = b_show ? "show" : "hide"
-            $(".ui.sidebar")
+            $("#id-sidemenu-T")
                 .sidebar("setting", "transition", "push")
+                .sidebar(show)
+                ;
+        }
+
+        function sideberR(b_show) {
+            const show = b_show ? "show" : "hide"
+            $("#id-sidemenu-R")
+                .sidebar("setting", "transition", "overlay")
                 .sidebar(show)
                 ;
         }
@@ -544,7 +541,6 @@
                 img.src = f.target.result;
                 img.onload = function () {
                     update_layer(o_layer_new, img);
-                    update_screen();
                     o_image_new = img;
                 }
             }
@@ -600,15 +596,13 @@
                         o_mrk_graph.drawCircle(x_curr, y_curr, MRK_SIZE);
                         o_mrk_graph.endFill();
 
-                        update_screen();
-
                         o_view.b_mrk = true;
                     }
                 }
             });
 
             new Vue({
-                el: "#id-sidemenu",
+                el: "#id-sidemenu-T",
                 data: {
                 },
                 methods: {
@@ -627,7 +621,6 @@
 
                             $("#id_btn_image_ref").val(null);
                             o_layer_new.removeChildren();
-                            update_screen();
                         } else {
                             $("#id_dlg_unauthorized").modal("show");
                         }
@@ -635,6 +628,14 @@
                     click_item_off: function (o_evt) {
                         sideber(false);
                     }
+                }
+            });
+
+            new Vue({
+                el: "#id-sidemenu-R",
+                methods: {
+                    click_color(c) { POINT_COLOR = c; o_view.update_shape(); },
+                    click_item_off(o_evt) { sideberR(false); }
                 }
             });
 
@@ -668,24 +669,15 @@
                         api_image_ref_del(id_image_ref);
                     },
                     click_own: function (o_evt) {
-                        /*
-                        api_image_mrk_del(param_i);
-                        o_mrk_graph.clear();
-                        this.b_mrk = false;
-                        */
                         o_mrk_graph.visible = true;
                         o_mrk_others_graph.visible = false;
-                        update_screen();
                     },
                     click_all: function (o_evt) {
-                        /*
-                        api_image_mrk_del(param_i);
-                        o_mrk_graph.clear();
-                        this.b_mrk = false;
-                        */
                         o_mrk_graph.visible = true;
                         o_mrk_others_graph.visible = true;
-                        update_screen();
+                    },
+                    click_etc: function (o_evt) {
+                        sideberR(true);
                     },
                     click_submit: function (o_evt) {
 
@@ -702,11 +694,41 @@
                         if (o_evt.target.files.length == 1) {
                             load_image(o_evt.target.files[0]);
                         }
+                    },
+
+                    update_shape: function () {
+                        let f_alpha = this.list_image_mrk.length > 0 ? 0.5 - (this.list_image_mrk.length / 100) : 0.5;
+                        let b_polls_new = false;
+
+                        o_mrk_graph.clear();
+                        o_mrk_others_graph.clear();
+                        for (let n = 0; n < this.list_image_mrk.length; n++) {
+                            const item = this.list_image_mrk[n];
+
+                            if (item.doc.tw_id == "{{ o_doc_sess.tw_id }}") {
+                                x_curr = item.doc.x;
+                                y_curr = item.doc.y;
+                                o_mrk_graph.clear();
+                                o_mrk_graph.beginFill(POINT_COLOR, 0.5);
+                                o_mrk_graph.drawCircle(x_curr, y_curr, item.doc.size);
+                                o_mrk_graph.endFill();
+                                b_polls_new = true;
+                            } else {
+                                o_mrk_others_graph.beginFill(POINT_COLOR, f_alpha);
+                                o_mrk_others_graph.drawCircle(item.doc.x, item.doc.y, item.doc.size);
+                                o_mrk_others_graph.endFill();
+                            }
+                        }
+
+                        this.b_polls = b_polls_new;
                     }
                 }
             });
 
             document.getElementById("main_frame").appendChild(o_renderer.view);
+
+            let o_tick = PIXI.Ticker.shared;
+            o_tick.add(update_screen);
             evt_window_resize();
 
             if (param_i == null) {
