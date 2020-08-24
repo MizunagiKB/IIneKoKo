@@ -221,6 +221,10 @@
                                 全員を表示
                                 <i class="users icon"></i>
                             </button>
+                            <button v-on:click="click_etc" class="ui right labeled icon button">
+                                表示色の設定
+                                <i class="bars icon"></i>
+                            </button>
                         </div>
                         <div v-else="">
                             <button v-on:click="click_mrk" class="ui labeled icon primary button"
@@ -229,10 +233,6 @@
                                 {% raw %}{{ b_mrk ? "ここにきめた！" : "いいなと思ったところをタップ" }}{% endraw %}
                             </button>
                         </div>
-                        <button v-on:click="click_etc" class="ui right labeled icon button">
-                            表示色の設定
-                            <i class="bars icon"></i>
-                        </button>
                     </div>
                     <div class="row" v-else-if="display_view == E_VIEW_NEW">
                         <div class="ui form">
@@ -365,6 +365,11 @@
                 }
 
                 param_i = res.data.doc._id;
+
+                api_image_ref_get(param_i);
+                // api_image_mrk_get(param_i);
+                api_image_mrk_get_list(param_i);
+
                 // console.log("o", res);
             }).catch(function (res) {
                 $("#id_dlg_unauthorized").modal("show");
