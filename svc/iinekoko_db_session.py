@@ -19,13 +19,16 @@ class CModelSession(pydantic.BaseModel):
     default_profile_image: bool
     profile_image_url_https: str
     referer: typing.Optional[str] = ""
-    created_at: typing.Optional[datetime.datetime] = datetime.datetime.now(
-        pytz.timezone("UTC")).strftime("%Y-%m-%dT%H:%M:%SZ")
-    modified_at: typing.Optional[datetime.datetime] = datetime.datetime.now(
-        pytz.timezone("UTC")).strftime("%Y-%m-%dT%H:%M:%SZ")
+    created_at: typing.Optional[str]
+    modified_at: typing.Optional[str]
 
 
 def create(o_db: iinekoko_db.CDatabase, o_sess: CModelSession):
+
+    o_sess.created_at = datetime.datetime.now(
+        pytz.timezone("UTC")).strftime("%Y-%m-%dT%H:%M:%SZ")
+    o_sess.modified_at = o_sess.created_at
+
     if o_db.o_conn is not None:
         o_doc = o_db.o_conn[DATABASE_NAME].create_document(
             o_sess.dict(by_alias=True, exclude_none=True))

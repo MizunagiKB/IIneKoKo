@@ -26,10 +26,8 @@ class CModelIMMrk(pydantic.BaseModel):
     x: int
     y: int
     size: int
-    created_at: typing.Optional[datetime.datetime] = datetime.datetime.now(
-        pytz.timezone("UTC")).strftime("%Y-%m-%dT%H:%M:%SZ")
-    modified_at: typing.Optional[datetime.datetime] = datetime.datetime.now(
-        pytz.timezone("UTC")).strftime("%Y-%m-%dT%H:%M:%SZ")
+    created_at: typing.Optional[str]
+    modified_at: typing.Optional[str]
 
 
 def create(o_db: iinekoko_db.CDatabase, o_doc_sess, o_immrk: CModelIMMrk):
@@ -37,6 +35,9 @@ def create(o_db: iinekoko_db.CDatabase, o_doc_sess, o_immrk: CModelIMMrk):
     o_immrk.tw_id = o_doc_sess["tw_id"]
     o_immrk.tw_username = o_doc_sess["tw_username"]
     o_immrk.id = "x".join((o_immrk.id_imref, o_immrk.tw_id))
+    o_immrk.created_at = datetime.datetime.now(
+        pytz.timezone("UTC")).strftime("%Y-%m-%dT%H:%M:%SZ")
+    o_immrk.modified_at = o_immrk.created_at
 
     assert o_immrk.tw_id is not None
     assert o_immrk.tw_username is not None

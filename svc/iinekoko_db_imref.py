@@ -31,10 +31,8 @@ class CModelIMRef(pydantic.BaseModel):
     profile_image_url_https: typing.Optional[str] = ""
     title: pydantic.constr(strip_whitespace=True, max_length=64)
     image_ref: typing.Any
-    created_at: typing.Optional[datetime.datetime] = datetime.datetime.now(
-        pytz.timezone("UTC")).strftime("%Y-%m-%dT%H:%M:%SZ")
-    modified_at: typing.Optional[datetime.datetime] = datetime.datetime.now(
-        pytz.timezone("UTC")).strftime("%Y-%m-%dT%H:%M:%SZ")
+    created_at: typing.Optional[str]
+    modified_at: typing.Optional[str]
 
 
 def create(o_db: iinekoko_db.CDatabase, o_doc_sess, o_imref: CModelIMRef,
@@ -46,6 +44,9 @@ def create(o_db: iinekoko_db.CDatabase, o_doc_sess, o_imref: CModelIMRef,
     o_imref.tw_username = o_doc_sess["tw_username"]
     o_imref.default_profile_image = o_doc_sess["default_profile_image"]
     o_imref.profile_image_url_https = o_doc_sess["profile_image_url_https"]
+    o_imref.created_at = datetime.datetime.now(
+        pytz.timezone("UTC")).strftime("%Y-%m-%dT%H:%M:%SZ")
+    o_imref.modified_at = o_imref.created_at
 
     o_doc = o_db.o_conn[DATABASE_NAME].create_document(
         o_imref.dict(
