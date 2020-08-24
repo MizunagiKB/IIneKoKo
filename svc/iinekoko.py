@@ -23,6 +23,7 @@ import iinekoko_db_session
 # ------------------------------------------------------------------- param(s)
 CONFIG_PATH = "./config.ini"
 COOKIE_NAME = "iinekoko_session"
+COOKIE_EXPIRE_SEC = 7 * 24 * 60 * 60
 MAX_IMREF = 10
 MAX_IMMRK = 100
 
@@ -65,8 +66,9 @@ def session_load(session_key: str):
 
 def session_save(o_doc_sess, o_res):
 
-    expired_sec = int(datetime.datetime.now(
-        pytz.timezone("UTC")).timestamp()) + 60
+    expired_sec = int(
+        datetime.datetime.now(pytz.timezone("UTC")).timestamp() /
+        100000000) + COOKIE_EXPIRE_SEC
 
     o_res.set_cookie(key=COOKIE_NAME,
                      value=o_doc_sess["_id"],
